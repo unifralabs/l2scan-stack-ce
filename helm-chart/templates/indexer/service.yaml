@@ -1,0 +1,21 @@
+{{- if .Values.indexer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "l2scan-stack.fullname" . }}-indexer
+  labels:
+    {{- include "l2scan-stack.indexer.labels" . | nindent 4 }}
+  {{- with .Values.indexer.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.indexer.service.type }}
+  ports:
+    - port: {{ .Values.indexer.service.port }}
+      targetPort: {{ .Values.indexer.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "l2scan-stack.indexer.selectorLabels" . | nindent 4 }}
+{{- end }}

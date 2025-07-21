@@ -1,0 +1,99 @@
+{{- if .Values.indexer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "l2scan-stack.fullname" . }}-indexer
+  labels:
+    {{- include "l2scan-stack.indexer.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.indexer.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "l2scan-stack.indexer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "l2scan-stack.indexer.selectorLabels" . | nindent 8 }}
+      {{- with .Values.commonAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.indexer.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "l2scan-stack.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.indexer.securityContext | nindent 8 }}
+      containers:
+        - name: indexer
+          image: {{ include "l2scan-stack.indexer.image" . }}
+          imagePullPolicy: {{ .Values.indexer.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.indexer.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: DATABASE_URL
+              value: {{ include "l2scan-stack.postgresql.url" . | quote }}
+            - name: REDIS_URL  
+              value: {{ include "l2scan-stack.redis.url" . | quote }}
+            {{- range $key, $value := .Values.indexer.env }}
+            {{- if and $value (ne $key "DATABASE_URL") (ne $key "REDIS_URL") }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+          {{- with .Values.indexer.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.indexer.healthCheck.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.indexer.healthCheck.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.indexer.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.indexer.healthCheck.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.indexer.healthCheck.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.indexer.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.indexer.healthCheck.periodSeconds }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.indexer.resources | nindent 12 }}
+          {{- if .Values.indexer.persistence.enabled }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          {{- end }}
+      {{- if .Values.indexer.persistence.enabled }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "l2scan-stack.fullname" . }}-indexer-data
+      {{- end }}
+      {{- with .Values.indexer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.indexer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.indexer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

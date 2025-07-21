@@ -1,0 +1,17 @@
+{{- if and .Values.indexer.enabled .Values.indexer.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "l2scan-stack.fullname" . }}-indexer-data
+  labels:
+    {{- include "l2scan-stack.indexer.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.indexer.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.indexer.persistence.size | quote }}
+  {{- if .Values.global.storageClass }}
+  storageClassName: {{ .Values.global.storageClass | quote }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,200 @@
+# Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# L2Scan Frontend configuration
+frontend:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: l2scan/frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  
+  replicaCount: 1
+  
+  env:
+    NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+    NEXT_PUBLIC_CHAIN: "1"
+    NEXT_PUBLIC_NOVU_BACKEND_URL: "https://api-novu.unifra.io"
+    NEXT_PUBLIC_NOVU_SOCKET_URL: "https://ws-novu.unifra.io"
+    DATABASE_URL: ""  # Will be automatically generated if using internal PostgreSQL
+    REDIS_URL: ""     # Will be automatically generated if using internal Redis
+    
+  envFrom: []
+  
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+      
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+    annotations: {}
+    
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: l2scan.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+    
+  healthCheck:
+    enabled: true
+    path: /api/health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    
+  persistence:
+    enabled: false
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    fsGroup: 1001
+
+# L2Scan Indexer configuration  
+indexer:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: l2scan/indexer
+    tag: "latest"
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    
+  replicaCount: 1
+  
+  env:
+    RPC_URL: ""
+    DATABASE_URL: ""  # Will be automatically generated if using internal PostgreSQL
+    REDIS_URL: ""     # Will be automatically generated if using internal Redis
+    LOG_LEVEL: "info"
+    CHAIN_ID: "1"
+    START_BLOCK: "0"
+    BATCH_SIZE: "100"
+    WORKER_COUNT: "4"
+    
+  envFrom: []
+  
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+      
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+    annotations: {}
+    
+  healthCheck:
+    enabled: true
+    path: /health
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    
+  persistence:
+    enabled: false
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    fsGroup: 1001
+
+# PostgreSQL configuration (using Bitnami chart)
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "l2scan123"
+    username: "l2scan"
+    password: "l2scan123" 
+    database: "l2scan"
+  primary:
+    persistence:
+      enabled: true
+      size: 100Gi
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+  metrics:
+    enabled: false
+
+# Redis configuration (using Bitnami chart)
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "redis123"
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  metrics:
+    enabled: false
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod Security Policy  
+podSecurityPolicy:
+  enabled: false
+
+# Network Policy
+networkPolicy:
+  enabled: false
+  ingress:
+    from: []
+  egress:
+    to: []
+
+# RBAC
+rbac:
+  create: true
+
+# Common labels
+commonLabels: {}
+
+# Common annotations  
+commonAnnotations: {}

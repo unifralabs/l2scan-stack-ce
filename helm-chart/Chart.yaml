@@ -1,0 +1,27 @@
+apiVersion: v2
+name: l2scan-stack
+description: A Helm chart for deploying L2Scan frontend and indexer services
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - blockchain
+  - explorer
+  - l2scan
+  - indexer
+home: https://github.com/your-org/l2scan-stack-ce
+sources:
+  - https://github.com/your-org/l2scan-ce
+  - https://github.com/your-org/l2scan-indexer-ce
+maintainers:
+  - name: L2Scan Team
+    email: team@l2scan.com
+dependencies:
+  - name: postgresql
+    version: "12.1.9"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+  - name: redis
+    version: "18.6.1"  
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
