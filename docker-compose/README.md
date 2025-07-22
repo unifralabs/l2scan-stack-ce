@@ -52,18 +52,21 @@ make clean         # Remove all containers and volumes
 Edit `.env` file with your configuration:
 
 ```env
-# Required: Blockchain RPC URL
-RPC_URL=https://mainnet.infura.io/v3/YOUR_PROJECT_ID
+# Frontend Required Variables
+DATABASE_URL=postgresql://l2scan:l2scan123@postgres:5432/l2scan
+RPC=http://10.2.0.76:8545
+REDIS_URL=redis://:redis123@redis:6379
+VERIFICATION_URL=https://your-verification-service.com
 
-# Optional: Chain configuration
-CHAIN_ID=1
-START_BLOCK=0
-BATCH_SIZE=100
-WORKER_COUNT=4
-
-# Optional: Frontend settings
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_CHAIN=1
+# Backend (Indexer) Required Variables
+L1_RPC=http://10.2.0.13:8545
+L2_RPC=http://10.2.0.76:8545
+PGDSN=postgres://postgres:mysecretpassword@10.100.1.6:5432/linea
+WORKER=1
+# L1_FORCE_START_BLOCK=17692169
+# L2_FORCE_START_BLOCK=0
+# CHECK_MISMATCHED_BLOCKS=true
+CMC_API_KEY=
 ```
 
 ### Service Scaling

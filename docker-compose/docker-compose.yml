@@ -48,14 +48,14 @@ services:
     container_name: l2scan-indexer
     restart: unless-stopped
     environment:
-      - DATABASE_URL=postgresql://l2scan:l2scan123@postgres:5432/l2scan
-      - REDIS_URL=redis://:redis123@redis:6379
-      - RPC_URL=${RPC_URL:-}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - CHAIN_ID=${CHAIN_ID:-1}
-      - START_BLOCK=${START_BLOCK:-0}
-      - BATCH_SIZE=${BATCH_SIZE:-100}
-      - WORKER_COUNT=${WORKER_COUNT:-4}
+      - L1_RPC=${L1_RPC:-}
+      - L2_RPC=${L2_RPC:-}
+      - PGDSN=${PGDSN:-postgresql://l2scan:l2scan123@postgres:5432/l2scan}
+      - WORKER=${WORKER:-1}
+      - L1_FORCE_START_BLOCK=${L1_FORCE_START_BLOCK:-}
+      - L2_FORCE_START_BLOCK=${L2_FORCE_START_BLOCK:-}
+      - CHECK_MISMATCHED_BLOCKS=${CHECK_MISMATCHED_BLOCKS:-}
+      - CMC_API_KEY=${CMC_API_KEY:-}
     volumes:
       - indexer_data:/app/data
     ports:
@@ -79,12 +79,10 @@ services:
     container_name: l2scan-frontend
     restart: unless-stopped
     environment:
-      - DATABASE_URL=postgresql://l2scan:l2scan123@postgres:5432/l2scan
-      - REDIS_URL=redis://:redis123@redis:6379
-      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
-      - NEXT_PUBLIC_CHAIN=${NEXT_PUBLIC_CHAIN:-1}
-      - NEXT_PUBLIC_NOVU_BACKEND_URL=${NEXT_PUBLIC_NOVU_BACKEND_URL:-https://api-novu.unifra.io}
-      - NEXT_PUBLIC_NOVU_SOCKET_URL=${NEXT_PUBLIC_NOVU_SOCKET_URL:-https://ws-novu.unifra.io}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://l2scan:l2scan123@postgres:5432/l2scan}
+      - REDIS_URL=${REDIS_URL:-redis://:redis123@redis:6379}
+      - RPC=${RPC:-}
+      - VERIFICATION_URL=${VERIFICATION_URL:-}
       - NODE_ENV=production
     volumes:
       - frontend_data:/app/data

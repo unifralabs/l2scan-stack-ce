@@ -17,12 +17,10 @@ frontend:
   replicaCount: 1
   
   env:
-    NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
-    NEXT_PUBLIC_CHAIN: "1"
-    NEXT_PUBLIC_NOVU_BACKEND_URL: "https://api-novu.unifra.io"
-    NEXT_PUBLIC_NOVU_SOCKET_URL: "https://ws-novu.unifra.io"
     DATABASE_URL: ""  # Will be automatically generated if using internal PostgreSQL
+    RPC: ""
     REDIS_URL: ""     # Will be automatically generated if using internal Redis
+    VERIFICATION_URL: ""
     
   envFrom: []
   
@@ -84,14 +82,14 @@ indexer:
   replicaCount: 1
   
   env:
-    RPC_URL: ""
-    DATABASE_URL: ""  # Will be automatically generated if using internal PostgreSQL
-    REDIS_URL: ""     # Will be automatically generated if using internal Redis
-    LOG_LEVEL: "info"
-    CHAIN_ID: "1"
-    START_BLOCK: "0"
-    BATCH_SIZE: "100"
-    WORKER_COUNT: "4"
+    L1_RPC: ""
+    L2_RPC: ""
+    PGDSN: ""  # Will be automatically generated if using internal PostgreSQL
+    WORKER: "1"
+    L1_FORCE_START_BLOCK: ""
+    L2_FORCE_START_BLOCK: ""
+    CHECK_MISMATCHED_BLOCKS: ""
+    CMC_API_KEY: ""
     
   envFrom: []
   

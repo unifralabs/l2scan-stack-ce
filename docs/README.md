@@ -37,10 +37,20 @@ L2Scan Stack includes:
    ```
 
 2. **Configure Environment**
-   Edit `.env` file with your blockchain RPC URL:
+   Edit `.env` file with your blockchain configuration:
    ```bash
-   RPC_URL=https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID
-   CHAIN_ID=1
+   # Frontend Required Variables
+   DATABASE_URL=postgresql://l2scan:l2scan123@postgres:5432/l2scan
+   RPC=http://10.2.0.76:8545
+   REDIS_URL=redis://:redis123@redis:6379
+   VERIFICATION_URL=https://your-verification-service.com
+
+   # Backend (Indexer) Required Variables
+   L1_RPC=http://10.2.0.13:8545
+   L2_RPC=http://10.2.0.76:8545
+   PGDSN=postgres://postgres:mysecretpassword@10.100.1.6:5432/linea
+   WORKER=1
+   CMC_API_KEY=
    ```
 
 3. **Deploy Stack**
@@ -88,17 +98,20 @@ L2Scan Stack includes:
 ### Environment Variables
 
 #### Frontend Configuration
-- `NEXT_PUBLIC_SITE_URL`: Public URL of the application
-- `NEXT_PUBLIC_CHAIN`: Chain ID for the blockchain
 - `DATABASE_URL`: PostgreSQL connection string
+- `RPC`: Layer 2 blockchain RPC endpoint
 - `REDIS_URL`: Redis connection string
+- `VERIFICATION_URL`: Contract verification service URL
 
 #### Indexer Configuration
-- `RPC_URL`: Blockchain RPC endpoint
-- `CHAIN_ID`: Blockchain chain ID
-- `START_BLOCK`: Starting block for indexing
-- `BATCH_SIZE`: Number of blocks to process in batch
-- `WORKER_COUNT`: Number of concurrent workers
+- `L1_RPC`: Layer 1 blockchain RPC endpoint
+- `L2_RPC`: Layer 2 blockchain RPC endpoint
+- `PGDSN`: PostgreSQL connection string
+- `WORKER`: Number of concurrent workers
+- `L1_FORCE_START_BLOCK`: Starting block for L1 indexing (optional)
+- `L2_FORCE_START_BLOCK`: Starting block for L2 indexing (optional)
+- `CHECK_MISMATCHED_BLOCKS`: Enable block mismatch checking (optional)
+- `CMC_API_KEY`: CoinMarketCap API key
 
 ### Database Schema
 
