@@ -1,6 +1,6 @@
 # L2Scan Stack - Docker Compose Deployment
 
-This directory contains Docker Compose configuration for deploying L2Scan stack locally or in development environments.
+This directory contains Docker Compose configuration for deploying L2Scan stack locally or in production environments.
 
 ## Quick Start
 
@@ -14,34 +14,44 @@ This directory contains Docker Compose configuration for deploying L2Scan stack 
    ```bash
    make up
    ```
+   
+   The stack will automatically:
+   - Start PostgreSQL and Redis
+   - Run database initialization/migration
+   - Start frontend and indexer services
 
 3. **Access Services**
    - Frontend: http://localhost:3000
    - Indexer API: http://localhost:8080
-   - Nginx Proxy: http://localhost
 
-## Development Mode
+## Database Initialization
 
-For development with admin tools:
+The stack includes automatic database initialization using a dedicated init container (`ghcr.io/unifralabs/l2scan-ce-init:main`). This ensures the database schema is properly set up before the main services start.
+
+### Manual Database Operations
 
 ```bash
-make dev
-```
+# Run database initialization manually (for troubleshooting)
+make init-db
 
-Additional services in development mode:
-- pgAdmin: http://localhost:8081 (admin@l2scan.com / admin123)
-- Redis Commander: http://localhost:8082
+# Force database initialization (overwrites existing data)
+make init-db-force
+
+# View initialization logs
+make db-migrate-logs
+```
 
 ## Available Commands
 
 ```bash
 make help          # Show all available commands
-make up            # Start production stack
-make dev           # Start development stack
+make up            # Start all services (includes automatic DB init)
 make down          # Stop all services
 make logs          # View all logs
 make health        # Check service health
+make init-db       # Run database initialization manually
 make db-backup     # Backup database
+make debug         # Show detailed debugging information
 make clean         # Remove all containers and volumes
 ```
 
@@ -52,21 +62,23 @@ make clean         # Remove all containers and volumes
 Edit `.env` file with your configuration:
 
 ```env
-# Frontend Required Variables
+# Database Configuration (used by init container and services)
 DATABASE_URL=postgresql://l2scan:l2scan123@postgres:5432/l2scan
+
+# Frontend Required Variables
 RPC=http://10.2.0.76:8545
 REDIS_URL=redis://:redis123@redis:6379
 VERIFICATION_URL=https://your-verification-service.com
 
 # Backend (Indexer) Required Variables
-L1_RPC=http://10.2.0.13:8545
+#L1_RPC=http://10.2.0.13:8545
 L2_RPC=http://10.2.0.76:8545
-PGDSN=postgres://postgres:mysecretpassword@10.100.1.6:5432/linea
+PGDSN=postgresql://l2scan:l2scan123@postgres:5432/l2scan
 WORKER=1
-# L1_FORCE_START_BLOCK=17692169
-# L2_FORCE_START_BLOCK=0
-# CHECK_MISMATCHED_BLOCKS=true
-CMC_API_KEY=
+#L1_FORCE_START_BLOCK=17692169
+#L2_FORCE_START_BLOCK=0
+#CHECK_MISMATCHED_BLOCKS=true
+CMC_API_KEY=your-coinmarketcap-api-key
 ```
 
 ### Service Scaling
@@ -77,20 +89,42 @@ Scale services horizontally:
 docker-compose up -d --scale frontend=3 --scale indexer=2
 ```
 
+## Service Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐
+│    Frontend     │    │     Indexer     │
+│   (Port 3000)   │    │   (Port 8080)   │
+└─────────────────┘    └─────────────────┘
+         │                       │
+         └───────────┬───────────┘
+                     │
+         ┌─────────────────┐    ┌─────────────────┐
+         │   PostgreSQL    │    │      Redis      │
+         │   (Port 5432)   │    │   (Port 6379)   │
+         └─────────────────┘    └─────────────────┘
+                     │
+         ┌─────────────────┐
+         │   DB Init       │
+         │   (Run once)    │
+         └─────────────────┘
+```
+
 ## Troubleshooting
 
 ### Service Won't Start
 
-1. Check logs:
+1. Check overall status and logs:
    ```bash
-   make logs
-   make frontend-logs
-   make indexer-logs
+   make debug
    ```
 
-2. Check service status:
+2. Check specific service logs:
    ```bash
-   make status
+   make frontend-logs
+   make indexer-logs
+   make postgres-logs
+   make db-migrate-logs
    ```
 
 3. Verify configuration:
@@ -100,12 +134,22 @@ docker-compose up -d --scale frontend=3 --scale indexer=2
 
 ### Database Issues
 
-Reset database:
-```bash
-make down
-docker volume rm l2scan-stack-ce_postgres_data
-make up
-```
+1. Check initialization logs:
+   ```bash
+   make db-migrate-logs
+   ```
+
+2. Re-run initialization:
+   ```bash
+   make init-db
+   ```
+
+3. Reset database completely:
+   ```bash
+   make down
+   docker volume rm l2scan-stack-ce_postgres_data
+   make up
+   ```
 
 ### Network Issues
 
@@ -114,6 +158,14 @@ Check container networking:
 docker network ls
 docker network inspect l2scan-stack-ce_l2scan-network
 ```
+
+## Images Used
+
+- **Frontend**: `ghcr.io/unifralabs/l2scan-ce:main` - Main Next.js application
+- **Database Init**: `ghcr.io/unifralabs/l2scan-ce-init:main` - Lightweight init container for database setup
+- **Indexer**: `l2scan/indexer:latest` - Backend indexing service
+- **PostgreSQL**: `postgres:15-alpine` - Database
+- **Redis**: `redis:7-alpine` - Cache and session store
 
 ## Performance Optimization
 

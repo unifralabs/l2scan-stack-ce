@@ -34,6 +34,21 @@ spec:
       serviceAccountName: {{ include "l2scan-stack.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.frontend.securityContext | nindent 8 }}
+      {{- if .Values.frontend.initContainer.enabled }}
+      initContainers:
+        - name: db-migrate
+          image: {{ .Values.frontend.initContainer.image }}:{{ .Values.frontend.initContainer.tag }}
+          imagePullPolicy: {{ .Values.frontend.initContainer.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: DATABASE_URL
+              value: {{ include "l2scan-stack.postgresql.url" . | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.frontend.initContainer.nodeEnv | default "production" | quote }}
+          {{- with .Values.frontend.initContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- end }}
       containers:
         - name: frontend
           image: {{ include "l2scan-stack.frontend.image" . }}

@@ -8,11 +8,26 @@ global:
 frontend:
   enabled: true
   image:
-    registry: docker.io
-    repository: l2scan/frontend
-    tag: "latest"
+    registry: ghcr.io
+    repository: unifralabs/l2scan-ce
+    tag: "main"
     pullPolicy: IfNotPresent
     pullSecrets: []
+  
+  # Database initialization container
+  initContainer:
+    enabled: true
+    image: ghcr.io/unifralabs/l2scan-ce-init
+    tag: main
+    pullPolicy: IfNotPresent
+    nodeEnv: production
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
   
   replicaCount: 1
   
@@ -21,6 +36,7 @@ frontend:
     RPC: ""
     REDIS_URL: ""     # Will be automatically generated if using internal Redis
     VERIFICATION_URL: ""
+    NODE_ENV: "production"
     
   envFrom: []
   
@@ -73,22 +89,22 @@ frontend:
 indexer:
   enabled: true
   image:
-    registry: docker.io
-    repository: l2scan/indexer
-    tag: "latest"
+    registry: ghcr.io
+    repository: unifralabs/l2scan-indexer-ce
+    tag: "v0.0.3"
     pullPolicy: IfNotPresent
     pullSecrets: []
     
   replicaCount: 1
   
   env:
-    L1_RPC: ""
+    # L1_RPC: ""
     L2_RPC: ""
     PGDSN: ""  # Will be automatically generated if using internal PostgreSQL
     WORKER: "1"
-    L1_FORCE_START_BLOCK: ""
-    L2_FORCE_START_BLOCK: ""
-    CHECK_MISMATCHED_BLOCKS: ""
+    # L1_FORCE_START_BLOCK: ""
+    # L2_FORCE_START_BLOCK: ""
+    # CHECK_MISMATCHED_BLOCKS: ""
     CMC_API_KEY: ""
     
   envFrom: []

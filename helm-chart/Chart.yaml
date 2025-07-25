@@ -9,10 +9,10 @@ keywords:
   - explorer
   - l2scan
   - indexer
-home: https://github.com/your-org/l2scan-stack-ce
+home: https://github.com/unifralabs/l2scan-stack-ce
 sources:
-  - https://github.com/your-org/l2scan-ce
-  - https://github.com/your-org/l2scan-indexer-ce
+  - https://github.com/unifralabs/l2scan-ce
+  - https://github.com/unifralabs/l2scan-indexer-ce
 maintainers:
   - name: L2Scan Team
     email: team@l2scan.com

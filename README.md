@@ -26,7 +26,7 @@ A comprehensive deployment solution for L2Scan blockchain explorer, providing bo
 
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/unifralabs/l2scan-stack-ce.git
 cd l2scan-stack-ce/docker-compose
 
 # Configure environment

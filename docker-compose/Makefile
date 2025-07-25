@@ -1,6 +1,6 @@
 # L2Scan Stack Docker Compose Makefile
 
-.PHONY: help up down restart logs build clean dev prod status shell-frontend shell-indexer shell-postgres backup restore
+.PHONY: help up down restart logs build clean status shell-frontend shell-indexer shell-postgres backup restore init-db
 
 # Default target
 help: ## Show this help message
@@ -18,7 +18,7 @@ help: ## Show this help message
 	fi
 
 # Production deployment
-up: .env ## Start all services in production mode
+up: .env ## Start all services (includes automatic database initialization)
 	docker-compose up -d
 
 down: ## Stop all services
@@ -37,15 +37,12 @@ clean: ## Remove all containers, networks, and volumes
 	docker-compose down -v --remove-orphans
 	docker system prune -f
 
-# Development deployment  
-dev: .env ## Start all services in development mode
-	docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
+# Database operations
+init-db: .env ## Run database initialization manually (for troubleshooting)
+	docker-compose run --rm db-migrate
 
-dev-logs: ## Show logs for development services
-	docker-compose -f docker-compose.yml -f docker-compose.override.yml logs -f
-
-dev-down: ## Stop development services
-	docker-compose -f docker-compose.yml -f docker-compose.override.yml down
+init-db-force: .env ## Force database initialization (overwrites existing data)
+	docker-compose run --rm db-migrate ./scripts/init-db.sh --force
 
 # Service management
 status: ## Show status of all services
@@ -62,6 +59,9 @@ postgres-logs: ## Show postgres service logs
 
 redis-logs: ## Show redis service logs
 	docker-compose logs -f redis
+
+db-migrate-logs: ## Show database migration logs
+	docker-compose logs db-migrate
 
 # Shell access
 shell-frontend: ## Access frontend container shell
@@ -102,8 +102,13 @@ update: ## Pull latest images and restart services
 	docker-compose pull
 	docker-compose up -d
 
-# Production deployment with SSL
-prod-ssl: .env ## Deploy with SSL support (requires SSL certificates)
-	@echo "Make sure SSL certificates are in docker-compose/nginx/ssl/"
-	@read -p "Continue? [y/N]: " confirm && [ "$$confirm" = "y" ]
-	docker-compose -f docker-compose.yml -f docker-compose.ssl.yml up -d
+# Troubleshooting
+debug: ## Show detailed information for debugging
+	@echo "=== Service Status ==="
+	docker-compose ps
+	@echo ""
+	@echo "=== Recent Init Logs ==="
+	docker-compose logs --tail=20 db-migrate || echo "No init logs available"
+	@echo ""
+	@echo "=== Service Health ==="
+	make health
