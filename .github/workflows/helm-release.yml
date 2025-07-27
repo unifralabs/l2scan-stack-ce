@@ -53,9 +53,10 @@ jobs:
           echo "Updated Chart.yaml:"
           cat helm-chart/Chart.yaml
 
-      - name: Update dependencies
+      - name: Clean and update dependencies
         run: |
           cd helm-chart
+          rm -rf charts/ Chart.lock
           helm dependency update
 
       - name: Lint Helm chart
@@ -107,10 +108,10 @@ jobs:
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: gh-pages
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3 
+        uses: actions/deploy-pages@v4 

@@ -128,8 +128,8 @@ Indexer image name
 PostgreSQL connection URL
 */}}
 {{- define "l2scan-stack.postgresql.url" -}}
-{{- if .Values.postgresql.enabled -}}
-{{- printf "postgresql://%s:%s@%s-postgresql:5432/%s" .Values.postgresql.auth.username .Values.postgresql.auth.password .Release.Name .Values.postgresql.auth.database -}}
+{{- if index .Values "l2scan-postgresql" "enabled" -}}
+{{- printf "postgresql://%s:%s@%s-l2scan-postgresql:5432/%s" (index .Values "l2scan-postgresql" "auth" "username") (index .Values "l2scan-postgresql" "auth" "password") .Release.Name (index .Values "l2scan-postgresql" "auth" "database") -}}
 {{- else -}}
 {{- .Values.app.env.DATABASE_URL -}}
 {{- end -}}
@@ -139,11 +139,11 @@ PostgreSQL connection URL
 Redis connection URL
 */}}
 {{- define "l2scan-stack.redis.url" -}}
-{{- if .Values.redis.enabled -}}
-{{- if .Values.redis.auth.enabled -}}
-{{- printf "redis://:%s@%s-redis-master:6379" .Values.redis.auth.password .Release.Name -}}
+{{- if index .Values "l2scan-redis" "enabled" -}}
+{{- if index .Values "l2scan-redis" "auth" "enabled" -}}
+{{- printf "redis://:%s@%s-l2scan-redis-master:6379" (index .Values "l2scan-redis" "auth" "password") .Release.Name -}}
 {{- else -}}
-{{- printf "redis://%s-redis-master:6379" .Release.Name -}}
+{{- printf "redis://%s-l2scan-redis-master:6379" .Release.Name -}}
 {{- end -}}
 {{- else -}}
 {{- .Values.app.env.REDIS_URL -}}

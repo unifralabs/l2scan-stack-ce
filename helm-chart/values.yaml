@@ -205,7 +205,7 @@ verifier:
     targetCPUUtilizationPercentage: 80
 
 # PostgreSQL configuration (using Bitnami chart)
-postgresql:
+l2scan-postgresql:
   enabled: true
   auth:
     postgresPassword: "l2scan123"
@@ -227,7 +227,7 @@ postgresql:
     enabled: false
 
 # Redis configuration (using Bitnami chart)
-redis:
+l2scan-redis:
   enabled: true
   auth:
     enabled: true

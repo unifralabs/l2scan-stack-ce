@@ -29,9 +29,10 @@ jobs:
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo update
 
-      - name: Update Chart dependencies
+      - name: Clean and update Chart dependencies
         run: |
           cd helm-chart
+          rm -rf charts/ Chart.lock
           helm dependency update
 
       - name: Lint Helm chart
@@ -44,8 +45,11 @@ jobs:
             --set app.enabled=true \
             --set indexer.enabled=true \
             --set verifier.enabled=true \
-            --set postgresql.enabled=false \
-            --set redis.enabled=false \
+            --set l2scan-postgresql.enabled=false \
+            --set l2scan-redis.enabled=false \
+            --set app.env.DATABASE_URL="postgresql://external:5432/db" \
+            --set app.env.REDIS_URL="redis://external:6379" \
+            --set indexer.env.PGDSN="postgresql://external:5432/db" \
             --dry-run > /dev/null
 
       - name: Test with example values
@@ -70,8 +74,8 @@ jobs:
         run: |
           # Test with minimal external dependencies
           helm install test-release helm-chart \
-            --set postgresql.enabled=false \
-            --set redis.enabled=false \
+            --set l2scan-postgresql.enabled=false \
+            --set l2scan-redis.enabled=false \
             --set app.env.DATABASE_URL="postgresql://external:5432/db" \
             --set app.env.REDIS_URL="redis://external:6379" \
             --dry-run
@@ -81,7 +85,7 @@ jobs:
           helm package helm-chart
 
       - name: Upload Chart artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: helm-chart
           path: "*.tgz" 
