@@ -1,0 +1,87 @@
+name: Test Helm Chart
+
+on:
+  pull_request:
+    paths:
+      - 'helm-chart/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'helm-chart/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.1
+
+      - name: Add Helm repos
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+
+      - name: Update Chart dependencies
+        run: |
+          cd helm-chart
+          helm dependency update
+
+      - name: Lint Helm chart
+        run: |
+          helm lint helm-chart
+
+      - name: Validate Chart templates
+        run: |
+          helm template test-release helm-chart \
+            --set app.enabled=true \
+            --set indexer.enabled=true \
+            --set verifier.enabled=true \
+            --set postgresql.enabled=false \
+            --set redis.enabled=false \
+            --dry-run > /dev/null
+
+      - name: Test with example values
+        run: |
+          for values_file in helm-chart/examples/*.yaml; do
+            if [ -f "$values_file" ]; then
+              echo "Testing with $values_file"
+              helm template test-release helm-chart \
+                -f "$values_file" \
+                --dry-run > /dev/null
+            fi
+          done
+
+      - name: Setup Kubernetes cluster (kind)
+        uses: helm/kind-action@v1.8.0
+        with:
+          version: v0.20.0
+          kubectl_version: v1.27.3
+          cluster_name: test-cluster
+
+      - name: Test Chart installation (dry-run)
+        run: |
+          # Test with minimal external dependencies
+          helm install test-release helm-chart \
+            --set postgresql.enabled=false \
+            --set redis.enabled=false \
+            --set app.env.DATABASE_URL="postgresql://external:5432/db" \
+            --set app.env.REDIS_URL="redis://external:6379" \
+            --dry-run
+
+      - name: Package Chart
+        run: |
+          helm package helm-chart
+
+      - name: Upload Chart artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: helm-chart
+          path: "*.tgz" 

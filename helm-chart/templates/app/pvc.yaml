@@ -1,0 +1,17 @@
+{{- if and .Values.app.enabled .Values.app.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "l2scan-stack.fullname" . }}-app-data
+  labels:
+    {{- include "l2scan-stack.app.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.app.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.app.persistence.size | quote }}
+  {{- if .Values.global.storageClass }}
+  storageClassName: {{ .Values.global.storageClass | quote }}
+  {{- end }}
+{{- end }}

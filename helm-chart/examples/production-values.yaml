@@ -1,0 +1,123 @@
+# Production Configuration Example for L2Scan Stack
+# This file shows recommended settings for production deployment
+
+app:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    registry: ghcr.io
+    repository: unifralabs/l2scan-ce
+    tag: "main"
+    pullPolicy: IfNotPresent
+    
+  env:
+    RPC: "https://your-l2-rpc-endpoint"
+    NODE_ENV: "production"
+    
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+      
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: explorer.yourdomain.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: explorer-tls
+        hosts:
+          - explorer.yourdomain.com
+
+indexer:
+  enabled: true
+  replicaCount: 2
+  
+  env:
+    L2_RPC: "https://your-l2-rpc-endpoint"
+    WORKER: "2"
+    CMC_API_KEY: "your-coinmarketcap-api-key"
+    
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+
+verifier:
+  enabled: true
+  replicaCount: 1
+  
+  persistence:
+    enabled: true
+    size: 50Gi
+    
+  config:
+    maxThreads: 8
+    
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+# Use managed PostgreSQL and Redis for production
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "your-secure-postgres-password"
+    username: "l2scan"
+    password: "your-secure-l2scan-password"
+    database: "l2scan"
+  primary:
+    persistence:
+      enabled: true
+      size: 500Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "your-secure-redis-password"
+  master:
+    persistence:
+      enabled: true
+      size: 20Gi
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+
+# Security and networking
+global:
+  imagePullSecrets:
+    - name: ghcr-secret
+
+networkPolicy:
+  enabled: true
+  
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT:role/l2scan-role" 

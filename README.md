@@ -1,10 +1,11 @@
 # L2Scan Stack CE
 
-A comprehensive deployment solution for L2Scan blockchain explorer, providing both Kubernetes Helm charts and Docker Compose configurations for easy deployment and management.
+A comprehensive deployment solution for L2Scan blockchain explorer, providing both Kubernetes Helm charts and Docker Compose configurations for easy deployment and management. Includes integrated smart contract verification service for complete blockchain exploration capabilities.
 
 ## 🚀 Features
 
-- **Complete Stack**: Frontend, indexer, database, and caching in one deployment
+- **Complete Stack**: App, indexer, verifier, database, and caching in one deployment
+- **Smart Contract Verification**: Integrated Blockscout verifier for Solidity and Vyper contracts
 - **Flexible Deployment**: Support for both Docker Compose and Kubernetes
 - **Production Ready**: Security, monitoring, and scaling configurations included
 - **Developer Friendly**: Development environment with hot reloading and admin tools
@@ -14,8 +15,9 @@ A comprehensive deployment solution for L2Scan blockchain explorer, providing bo
 
 | Component | Description | Technology |
 |-----------|-------------|------------|
-| **Frontend** | Web-based blockchain explorer interface | Next.js, React |
+| **App** | Web-based blockchain explorer interface | Next.js, React |
 | **Indexer** | Blockchain data indexing service | Go |
+| **Verifier** | Smart contract verification service | Rust |
 | **Database** | Persistent storage for blockchain data | PostgreSQL |
 | **Cache** | Session and data caching | Redis |
 | **Proxy** | Load balancing and reverse proxy | Nginx |
@@ -38,9 +40,49 @@ make up
 
 # Access the application
 open http://localhost:3000
+
+# Service endpoints
+# - App: http://localhost:3000
+# - Indexer API: http://localhost:8080  
+# - Verifier API: http://localhost:8050
+# - Database: localhost:5432
+# - Redis: localhost:6379
 ```
 
-### Kubernetes with Helm (Recommended for production)
+### Kubernetes with Helm Repository (Recommended)
+
+```bash
+# Add the L2Scan Helm repository
+helm repo add l2scan https://unifralabs.github.io/l2scan-stack-ce
+helm repo update
+
+# Create image pull secret (if using private images)
+kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io \
+  --docker-username=YOUR_USERNAME \
+  --docker-password=YOUR_TOKEN
+
+# Deploy with external database
+helm install my-l2scan l2scan/l2scan-stack \
+  --set app.env.RPC="your-rpc-url" \
+  --set app.env.DATABASE_URL="postgresql://user:pass@host:5432/dbname" \
+  --set indexer.env.L2_RPC="your-rpc-url" \
+  --set verifier.enabled=true \
+  --set global.imagePullSecrets[0].name=ghcr-secret
+
+# Or use example configurations
+helm install my-l2scan l2scan/l2scan-stack \
+  -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/production-values.yaml
+
+# Access the application
+kubectl port-forward svc/my-l2scan-l2scan-stack-app 3000:3000
+
+# Verify deployment
+kubectl get pods
+kubectl get svc
+```
+
+### Kubernetes with Local Helm Chart (Development)
 
 ```bash
 # Navigate to helm chart
@@ -49,14 +91,27 @@ cd l2scan-stack-ce/helm-chart
 # Install dependencies
 helm dependency build
 
+# Create image pull secret (if using private images)
+kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io \
+  --docker-username=YOUR_USERNAME \
+  --docker-password=YOUR_TOKEN
+
 # Deploy with custom values
 helm install l2scan . \
-  --set frontend.env.RPC_URL="your-rpc-url" \
-  --set frontend.ingress.enabled=true \
-  --set frontend.ingress.hosts[0].host="your-domain.com"
+  --set app.env.RPC="your-rpc-url" \
+  --set indexer.env.L2_RPC="your-rpc-url" \
+  --set verifier.enabled=true \
+  --set postgresql.enabled=true \
+  --set redis.enabled=true \
+  --set global.imagePullSecrets[0].name=ghcr-secret
 
 # Access the application
-kubectl port-forward svc/l2scan-frontend 3000:3000
+kubectl port-forward svc/l2scan-app 3000:3000
+
+# Verify deployment
+kubectl get pods
+kubectl get svc
 ```
 
 ## 📋 Prerequisites
@@ -88,17 +143,25 @@ Key configuration options:
 
 ```env
 # Blockchain Configuration
-RPC_URL=https://mainnet.infura.io/v3/YOUR_PROJECT_ID
-CHAIN_ID=1
+RPC=https://mainnet.infura.io/v3/YOUR_PROJECT_ID
+L2_RPC=https://mainnet.infura.io/v3/YOUR_PROJECT_ID
+
+# Database Configuration
+DATABASE_URL=postgresql://l2scan:l2scan123@postgres:5432/l2scan
+PGDSN=postgresql://l2scan:l2scan123@postgres:5432/l2scan
+
+# Cache Configuration
+REDIS_URL=redis://:redis123@redis:6379
+
+# Contract Verification
+VERIFICATION_URL=http://verifier:8050
 
 # Indexer Settings
-START_BLOCK=0
-BATCH_SIZE=100
-WORKER_COUNT=4
+WORKER=1
+CMC_API_KEY=your_coinmarketcap_api_key
 
-# Frontend Settings
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_CHAIN=1
+# Environment
+NODE_ENV=production
 ```
 
 ### Advanced Configuration
@@ -106,7 +169,7 @@ NEXT_PUBLIC_CHAIN=1
 For Helm deployments, customize `values.yaml`:
 
 ```yaml
-frontend:
+app:
   replicaCount: 3
   resources:
     limits:
@@ -123,8 +186,18 @@ frontend:
 indexer:
   replicaCount: 2
   env:
-    RPC_URL: "https://your-rpc-endpoint"
-    BATCH_SIZE: "200"
+    L2_RPC: "https://your-l2-rpc-endpoint"
+    WORKER: "2"
+    CMC_API_KEY: "your-api-key"
+
+verifier:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 50Gi
+  config:
+    maxThreads: 8
 ```
 
 ## 🛠️ Management Commands
@@ -140,8 +213,9 @@ make dev
 
 # View logs
 make logs
-make frontend-logs
+make app-logs
 make indexer-logs
+make verifier-logs
 
 # Database operations
 make db-backup
@@ -167,24 +241,131 @@ helm upgrade --install l2scan ./helm-chart -f values.yaml
 kubectl get pods -l app.kubernetes.io/name=l2scan-stack
 
 # View logs
-kubectl logs -f deployment/l2scan-frontend
+kubectl logs -f deployment/l2scan-app
 kubectl logs -f deployment/l2scan-indexer
+kubectl logs -f deployment/l2scan-verifier
 
 # Scale services
-kubectl scale deployment l2scan-frontend --replicas=3
+kubectl scale deployment l2scan-app --replicas=3
 kubectl scale deployment l2scan-indexer --replicas=2
+kubectl scale deployment l2scan-verifier --replicas=2
 ```
+
+### Kubernetes Deployment Details
+
+#### Prerequisites
+- Kubernetes cluster 1.19+
+- Helm 3.0+
+- kubectl configured to access your cluster
+- Persistent volume support (for production)
+
+#### Step-by-Step Deployment
+
+1. **Prepare the environment**
+   ```bash
+   # Clone and navigate
+   git clone https://github.com/unifralabs/l2scan-stack-ce.git
+   cd l2scan-stack-ce/helm-chart
+   
+   # Download dependencies
+   helm dependency build
+   ```
+
+2. **Configure authentication (for private images)**
+   ```bash
+   # Create image pull secret
+   kubectl create secret docker-registry ghcr-secret \
+     --docker-server=ghcr.io \
+     --docker-username=YOUR_USERNAME \
+     --docker-password=YOUR_TOKEN
+   ```
+
+3. **Create custom values file or use examples**
+   ```bash
+   # Use provided examples
+   helm install l2scan . -f examples/production-values.yaml
+   # OR create your own values file
+   cp examples/production-values.yaml my-values.yaml
+   # Edit my-values.yaml with your specific settings
+   ```
+   
+   Example configuration structure:
+   ```yaml
+   # my-values.yaml
+   app:
+     env:
+       RPC: "https://your-l2-rpc-endpoint"
+        
+   indexer:
+     env:
+       L2_RPC: "https://your-l2-rpc-endpoint"
+       WORKER: "2"
+       CMC_API_KEY: "your-coinmarketcap-api-key"
+   
+   verifier:
+     enabled: true
+     persistence:
+       enabled: true
+       size: 50Gi
+   
+   postgresql:
+     enabled: true
+     auth:
+       postgresPassword: "secure-password"
+       
+   redis:
+     enabled: true
+     auth:
+       password: "secure-redis-password"
+   
+   global:
+     imagePullSecrets:
+       - name: ghcr-secret
+   ```
+
+4. **Deploy the stack**
+   ```bash
+   helm install l2scan . -f production-values.yaml
+   ```
+
+5. **Verify deployment**
+   ```bash
+   # Check pod status
+   kubectl get pods
+   
+   # Check services
+   kubectl get svc
+   
+   # Test verifier service
+   kubectl port-forward svc/l2scan-verifier 8050:8050 &
+   curl http://localhost:8050/health
+   
+   # Access the app
+   kubectl port-forward svc/l2scan-app 3000:3000
+   ```
+
+#### Common Issues and Solutions
+
+| Issue | Symptoms | Solution |
+|-------|----------|----------|
+| **ImagePullBackOff** | Pods stuck in ImagePullBackOff | Create and configure ImagePullSecret |
+| **Pending Pods** | Pods stuck in Pending state | Check PV availability and resource quotas |
+| **CrashLoopBackOff** | Pods restarting repeatedly | Check logs and database connectivity |
+| **Failed Dependencies** | Helm install fails | Run `helm dependency build` first |
 
 ## 🔍 Monitoring and Debugging
 
 ### Service Health Checks
 
 ```bash
-# Frontend health
+# App health
 curl http://localhost:3000/api/health
 
-# Indexer health  
-curl http://localhost:8080/health
+# Indexer status (check logs)
+docker-compose logs indexer
+
+# Verifier health
+curl http://localhost:8050/health
 
 # Database health
 docker-compose exec postgres pg_isready -U l2scan
@@ -204,8 +385,9 @@ When using `make dev`, additional admin tools are available:
 make logs
 
 # Service-specific logs
-make frontend-logs
+make app-logs
 make indexer-logs
+make verifier-logs
 make postgres-logs
 make redis-logs
 ```
@@ -226,7 +408,7 @@ make redis-logs
 
 ```yaml
 # values.yaml for Helm
-frontend:
+app:
   securityContext:
     runAsNonRoot: true
     runAsUser: 1001
@@ -250,7 +432,7 @@ redis:
 
 ```yaml
 # Recommended production resources
-frontend:
+app:
   resources:
     requests:
       cpu: 500m
@@ -267,6 +449,15 @@ indexer:
     limits:
       cpu: 2000m
       memory: 4Gi
+
+verifier:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
 ```
 
 ### Database Optimization
@@ -287,34 +478,89 @@ postgresql:
 
 | Issue | Symptoms | Solution |
 |-------|----------|----------|
-| **Slow indexing** | Indexer falls behind blockchain | Increase `BATCH_SIZE` and `WORKER_COUNT` |
-| **Frontend errors** | 500 errors, connection issues | Check database connectivity and logs |
+| **Slow indexing** | Indexer falls behind blockchain | Increase `WORKER` count and check RPC connection |
+| **App errors** | 500 errors, connection issues | Check database connectivity and logs |
 | **Database locks** | Slow queries, timeouts | Restart database, check query performance |
 | **Memory issues** | OOM kills, slow performance | Increase resource limits |
+| **Verification errors** | Contract verification fails | Check verifier logs and compiler availability |
+| **ImagePullBackOff (K8s)** | Kubernetes can't pull images | Create ImagePullSecret for private registries |
+| **Helm dependency errors** | Missing PostgreSQL/Redis charts | Run `helm dependency build` before install |
 
 ### Debug Commands
 
+#### Docker Compose
 ```bash
 # Check container health
 docker-compose ps
 
 # Inspect container details
-docker inspect l2scan-frontend
+docker inspect l2scan-app
 
 # Check resource usage
 docker stats
 
+# Test verifier service
+curl http://localhost:8050/health
+
 # Network debugging
 docker network ls
-docker network inspect l2scan-stack-ce_l2scan-network
+docker network inspect docker-compose_l2scan-network
+```
+
+#### Kubernetes
+```bash
+# Check pod status and events
+kubectl get pods
+kubectl describe pod <pod-name>
+
+# Check logs
+kubectl logs -f deployment/l2scan-app
+kubectl logs -f deployment/l2scan-verifier
+
+# Test services
+kubectl port-forward svc/l2scan-verifier 8050:8050 &
+curl http://localhost:8050/health
+
+# Check resources
+kubectl top pods
+kubectl get pv,pvc
+
+# Network debugging
+kubectl get svc,ingress
+kubectl describe service l2scan-verifier
 ```
 
 ## 📚 Documentation
 
 - **[Complete Deployment Guide](docs/README.md)** - Detailed setup and configuration
+- **[Helm Repository Guide](docs/HELM_REPOSITORY.md)** - Official Helm repository usage
 - **[Docker Compose Guide](docker-compose/README.md)** - Docker-specific instructions
-- **[Helm Chart Documentation](helm-chart/README.md)** - Kubernetes deployment details
-- **[Configuration Reference](docs/configuration.md)** - All configuration options
+- **[Helm Chart Documentation](helm-chart/README.md)** - Local Kubernetes deployment details
+- **[Configuration Examples](helm-chart/examples/)** - Ready-to-use deployment configurations
+- **[Smart Contract Verifier Integration](docker-compose/smart-contract-verifier/)** - Verification service details
+
+## 🔍 Smart Contract Verification
+
+The integrated smart contract verifier supports multiple verification methods:
+
+### Supported Features
+- **Solidity Contract Verification** - Full source code verification with compiler version detection
+- **Vyper Contract Verification** - Support for Vyper smart contracts
+- **Sourcify Integration** - Automatic verification through Sourcify.dev
+- **Multi-compiler Support** - Automatic downloading and management of compiler versions
+- **RESTful API** - HTTP API for programmatic verification
+
+### Verification Endpoints
+- **Health Check**: `GET /health` - Service status
+- **Solidity Verification**: `POST /verify/solidity` - Verify Solidity contracts
+- **Vyper Verification**: `POST /verify/vyper` - Verify Vyper contracts  
+- **Sourcify Verification**: `POST /verify/sourcify` - Verify via Sourcify
+
+### Configuration
+The verifier service is automatically configured and connected to your L2Scan instance:
+- **Docker Compose**: `http://verifier:8050`
+- **Kubernetes**: Auto-generated service URL
+- **Storage**: Persistent compiler cache for performance
 
 ## 🤝 Contributing
 
@@ -339,6 +585,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔄 Roadmap
 
 - [ ] Multi-chain support
+- [ ] Enhanced smart contract verification (more languages)
 - [ ] Advanced monitoring and alerting
 - [ ] Automated scaling policies
 - [ ] Enhanced security features

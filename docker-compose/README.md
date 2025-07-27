@@ -296,13 +296,11 @@ jobs:
           make up
 ```
 
-### Build Custom Images
+### Custom Images
 
-```bash
-# Build images from source
-cd ../scripts
-./build-images.sh
+The stack uses pre-built images from GitHub Container Registry:
+- `ghcr.io/unifralabs/l2scan-ce:main` - Main application
+- `ghcr.io/unifralabs/l2scan-indexer-ce:main` - Blockchain indexer  
+- `ghcr.io/unifralabs/l2scan-ce-init:main` - Database initialization
 
-# Use custom images
-make up
-```
+These images are automatically pulled when running `make up`.

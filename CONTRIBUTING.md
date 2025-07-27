@@ -194,7 +194,6 @@ l2scan-stack-ce/
 │   ├── docker-compose.yml   # Main compose file
 │   ├── nginx/               # Nginx configuration
 │   └── init-scripts/        # Database init scripts
-├── scripts/                 # Utility scripts
 ├── docs/                   # Documentation
 └── README.md              # Main documentation
 ```

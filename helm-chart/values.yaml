@@ -4,8 +4,8 @@ global:
   imagePullSecrets: []
   storageClass: ""
 
-# L2Scan Frontend configuration
-frontend:
+# L2Scan App configuration
+app:
   enabled: true
   image:
     registry: ghcr.io

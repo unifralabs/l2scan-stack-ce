@@ -27,8 +27,8 @@ helm install l2scan . -f my-values.yaml
 
 # With inline values
 helm install l2scan . \
-  --set frontend.env.RPC_URL="https://mainnet.infura.io/v3/YOUR_KEY" \
-  --set frontend.ingress.enabled=true
+  --set app.env.RPC="https://mainnet.infura.io/v3/YOUR_KEY" \
+  --set app.ingress.enabled=true
 ```
 
 ### Upgrade
@@ -53,7 +53,7 @@ helm uninstall l2scan
 postgresql:
   enabled: false
 
-frontend:
+app:
   env:
     DATABASE_URL: "postgresql://user:pass@external-db:5432/l2scan"
 
@@ -65,7 +65,7 @@ indexer:
 #### Ingress Configuration
 
 ```yaml
-frontend:
+app:
   ingress:
     enabled: true
     className: "nginx"
@@ -86,7 +86,7 @@ frontend:
 #### Resource Configuration
 
 ```yaml
-frontend:
+app:
   replicaCount: 3
   resources:
     requests:
@@ -130,7 +130,7 @@ redis:
 #### Pod Security
 
 ```yaml
-frontend:
+app:
   securityContext:
     runAsNonRoot: true
     runAsUser: 1001
@@ -169,13 +169,13 @@ serviceAccount:
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `frontend.enabled` | Enable frontend deployment | `true` |
-| `frontend.replicaCount` | Number of replicas | `1` |
-| `frontend.image.repository` | Image repository | `l2scan/frontend` |
-| `frontend.image.tag` | Image tag | `latest` |
-| `frontend.service.type` | Service type | `ClusterIP` |
-| `frontend.service.port` | Service port | `3000` |
-| `frontend.ingress.enabled` | Enable ingress | `false` |
+| `app.enabled` | Enable app deployment | `true` |
+| `app.replicaCount` | Number of replicas | `1` |
+| `app.image.repository` | Image repository | `l2scan/app` |
+| `app.image.tag` | Image tag | `latest` |
+| `app.service.type` | Service type | `ClusterIP` |
+| `app.service.port` | Service port | `3000` |
+| `app.ingress.enabled` | Enable ingress | `false` |
 
 ### Indexer Configuration
 
@@ -208,7 +208,7 @@ All services include health checks:
 kubectl get pods -l app.kubernetes.io/name=l2scan-stack
 
 # Check service health
-kubectl exec deployment/l2scan-frontend -- wget -qO- http://localhost:3000/api/health
+kubectl exec deployment/l2scan-app -- wget -qO- http://localhost:3000/api/health
 kubectl exec deployment/l2scan-indexer -- wget -qO- http://localhost:8080/health
 ```
 
@@ -216,7 +216,7 @@ kubectl exec deployment/l2scan-indexer -- wget -qO- http://localhost:8080/health
 
 ```bash
 # Application logs
-kubectl logs -f deployment/l2scan-frontend
+kubectl logs -f deployment/l2scan-app
 kubectl logs -f deployment/l2scan-indexer
 
 # Database logs  
@@ -251,12 +251,12 @@ redis:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: l2scan-frontend-hpa
+  name: l2scan-app-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: l2scan-frontend
+    name: l2scan-app
   minReplicas: 2
   maxReplicas: 10
   metrics:
@@ -301,14 +301,14 @@ kubectl exec deployment/l2scan-postgresql -- pg_dump -U l2scan l2scan > backup.s
 
 ```bash
 # Scale down applications
-kubectl scale deployment l2scan-frontend --replicas=0
+kubectl scale deployment l2scan-app --replicas=0
 kubectl scale deployment l2scan-indexer --replicas=0
 
 # Restore database
 kubectl exec -i deployment/l2scan-postgresql -- psql -U l2scan -d l2scan < backup.sql
 
 # Scale up applications
-kubectl scale deployment l2scan-frontend --replicas=3
+kubectl scale deployment l2scan-app --replicas=3
 kubectl scale deployment l2scan-indexer --replicas=2
 ```
 
@@ -331,7 +331,7 @@ kubectl describe nodes
 
 ```bash
 # Test database connectivity
-kubectl exec deployment/l2scan-frontend -- nc -zv l2scan-postgresql 5432
+kubectl exec deployment/l2scan-app -- nc -zv l2scan-postgresql 5432
 
 # Check database logs
 kubectl logs deployment/l2scan-postgresql
@@ -356,11 +356,11 @@ kubectl describe pvc
 kubectl get all -l app.kubernetes.io/instance=l2scan
 
 # Port forward for local access
-kubectl port-forward svc/l2scan-frontend 3000:3000
+kubectl port-forward svc/l2scan-app 3000:3000
 kubectl port-forward svc/l2scan-indexer 8080:8080
 
 # Exec into containers
-kubectl exec -it deployment/l2scan-frontend -- /bin/sh
+kubectl exec -it deployment/l2scan-app -- /bin/sh
 kubectl exec -it deployment/l2scan-indexer -- /bin/sh
 ```
 

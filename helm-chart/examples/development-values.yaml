@@ -1,0 +1,97 @@
+# Development Configuration Example for L2Scan Stack
+# This file shows recommended settings for development/testing
+
+app:
+  enabled: true
+  replicaCount: 1
+  
+  env:
+    RPC: "https://eth-sepolia.alchemyapi.io/v2/demo"
+    NODE_ENV: "development"
+    
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+      
+  persistence:
+    enabled: false  # Use emptyDir for development
+
+indexer:
+  enabled: true
+  replicaCount: 1
+  
+  env:
+    L2_RPC: "https://eth-sepolia.alchemyapi.io/v2/demo"
+    WORKER: "1"
+    
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+verifier:
+  enabled: true
+  replicaCount: 1
+  
+  persistence:
+    enabled: false  # Use emptyDir for development
+    
+  config:
+    maxThreads: 4
+    
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# Use internal PostgreSQL and Redis for development
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "devpass123"
+    username: "l2scan"
+    password: "devpass123"
+    database: "l2scan"
+  primary:
+    persistence:
+      enabled: false  # Use emptyDir for development
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "devpass123"
+  master:
+    persistence:
+      enabled: false  # Use emptyDir for development
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
+
+# Minimal security for development
+global:
+  imagePullSecrets: []  # No pull secrets needed for public images
+
+networkPolicy:
+  enabled: false  # Disable network policies for easier development 

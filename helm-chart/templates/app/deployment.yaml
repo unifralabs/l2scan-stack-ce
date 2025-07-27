@@ -1,23 +1,23 @@
-{{- if .Values.frontend.enabled }}
+{{- if .Values.app.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "l2scan-stack.fullname" . }}-frontend
+  name: {{ include "l2scan-stack.fullname" . }}-app
   labels:
-    {{- include "l2scan-stack.frontend.labels" . | nindent 4 }}
+    {{- include "l2scan-stack.app.labels" . | nindent 4 }}
   {{- with .Values.commonAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  replicas: {{ .Values.frontend.replicaCount }}
+  replicas: {{ .Values.app.replicaCount }}
   selector:
     matchLabels:
-      {{- include "l2scan-stack.frontend.selectorLabels" . | nindent 6 }}
+      {{- include "l2scan-stack.app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "l2scan-stack.frontend.selectorLabels" . | nindent 8 }}
+        {{- include "l2scan-stack.app.selectorLabels" . | nindent 8 }}
       {{- with .Values.commonAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
@@ -27,35 +27,35 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.frontend.image.pullSecrets }}
+      {{- with .Values.app.image.pullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "l2scan-stack.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.frontend.securityContext | nindent 8 }}
-      {{- if .Values.frontend.initContainer.enabled }}
+        {{- toYaml .Values.app.securityContext | nindent 8 }}
+      {{- if .Values.app.initContainer.enabled }}
       initContainers:
         - name: db-migrate
-          image: {{ .Values.frontend.initContainer.image }}:{{ .Values.frontend.initContainer.tag }}
-          imagePullPolicy: {{ .Values.frontend.initContainer.pullPolicy | default "IfNotPresent" }}
+          image: {{ .Values.app.initContainer.image }}:{{ .Values.app.initContainer.tag }}
+          imagePullPolicy: {{ .Values.app.initContainer.pullPolicy | default "IfNotPresent" }}
           env:
             - name: DATABASE_URL
               value: {{ include "l2scan-stack.postgresql.url" . | quote }}
             - name: NODE_ENV
-              value: {{ .Values.frontend.initContainer.nodeEnv | default "production" | quote }}
-          {{- with .Values.frontend.initContainer.resources }}
+              value: {{ .Values.app.initContainer.nodeEnv | default "production" | quote }}
+          {{- with .Values.app.initContainer.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
       {{- end }}
       containers:
-        - name: frontend
-          image: {{ include "l2scan-stack.frontend.image" . }}
-          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+        - name: app
+          image: {{ include "l2scan-stack.app.image" . }}
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.frontend.service.targetPort }}
+              containerPort: {{ .Values.app.service.targetPort }}
               protocol: TCP
           env:
             - name: DATABASE_URL
@@ -64,52 +64,52 @@ spec:
               value: {{ include "l2scan-stack.redis.url" . | quote }}
             - name: VERIFICATION_URL
               value: {{ include "l2scan-stack.verifier.url" . | quote }}
-            {{- range $key, $value := .Values.frontend.env }}
+            {{- range $key, $value := .Values.app.env }}
             {{- if and $value (ne $key "DATABASE_URL") (ne $key "REDIS_URL") (ne $key "VERIFICATION_URL") }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
             {{- end }}
-          {{- with .Values.frontend.envFrom }}
+          {{- with .Values.app.envFrom }}
           envFrom:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .Values.frontend.healthCheck.enabled }}
+          {{- if .Values.app.healthCheck.enabled }}
           livenessProbe:
             httpGet:
-              path: {{ .Values.frontend.healthCheck.path }}
+              path: {{ .Values.app.healthCheck.path }}
               port: http
-            initialDelaySeconds: {{ .Values.frontend.healthCheck.initialDelaySeconds }}
-            periodSeconds: {{ .Values.frontend.healthCheck.periodSeconds }}
+            initialDelaySeconds: {{ .Values.app.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.healthCheck.periodSeconds }}
           readinessProbe:
             httpGet:
-              path: {{ .Values.frontend.healthCheck.path }}
+              path: {{ .Values.app.healthCheck.path }}
               port: http
-            initialDelaySeconds: {{ .Values.frontend.healthCheck.initialDelaySeconds }}
-            periodSeconds: {{ .Values.frontend.healthCheck.periodSeconds }}
+            initialDelaySeconds: {{ .Values.app.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.healthCheck.periodSeconds }}
           {{- end }}
           resources:
-            {{- toYaml .Values.frontend.resources | nindent 12 }}
-          {{- if .Values.frontend.persistence.enabled }}
+            {{- toYaml .Values.app.resources | nindent 12 }}
+          {{- if .Values.app.persistence.enabled }}
           volumeMounts:
             - name: data
               mountPath: /app/data
           {{- end }}
-      {{- if .Values.frontend.persistence.enabled }}
+      {{- if .Values.app.persistence.enabled }}
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: {{ include "l2scan-stack.fullname" . }}-frontend-data
+            claimName: {{ include "l2scan-stack.fullname" . }}-app-data
       {{- end }}
-      {{- with .Values.frontend.nodeSelector }}
+      {{- with .Values.app.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.frontend.affinity }}
+      {{- with .Values.app.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.frontend.tolerations }}
+      {{- with .Values.app.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

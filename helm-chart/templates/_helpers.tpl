@@ -54,19 +54,19 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Frontend labels
+App labels
 */}}
-{{- define "l2scan-stack.frontend.labels" -}}
+{{- define "l2scan-stack.app.labels" -}}
 {{ include "l2scan-stack.labels" . }}
-app.kubernetes.io/component: frontend
+app.kubernetes.io/component: app
 {{- end }}
 
 {{/*
-Frontend selector labels
+App selector labels
 */}}
-{{- define "l2scan-stack.frontend.selectorLabels" -}}
+{{- define "l2scan-stack.app.selectorLabels" -}}
 {{ include "l2scan-stack.selectorLabels" . }}
-app.kubernetes.io/component: frontend
+app.kubernetes.io/component: app
 {{- end }}
 
 {{/*
@@ -97,12 +97,12 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Frontend image name
+App image name
 */}}
-{{- define "l2scan-stack.frontend.image" -}}
-{{- $registryName := .Values.frontend.image.registry -}}
-{{- $repositoryName := .Values.frontend.image.repository -}}
-{{- $tag := .Values.frontend.image.tag | toString -}}
+{{- define "l2scan-stack.app.image" -}}
+{{- $registryName := .Values.app.image.registry -}}
+{{- $repositoryName := .Values.app.image.repository -}}
+{{- $tag := .Values.app.image.tag | toString -}}
 {{- if .Values.global.imageRegistry }}
     {{- printf "%s/%s:%s" .Values.global.imageRegistry $repositoryName $tag -}}
 {{- else -}}
@@ -131,7 +131,7 @@ PostgreSQL connection URL
 {{- if .Values.postgresql.enabled -}}
 {{- printf "postgresql://%s:%s@%s-postgresql:5432/%s" .Values.postgresql.auth.username .Values.postgresql.auth.password .Release.Name .Values.postgresql.auth.database -}}
 {{- else -}}
-{{- .Values.frontend.env.DATABASE_URL -}}
+{{- .Values.app.env.DATABASE_URL -}}
 {{- end -}}
 {{- end }}
 
@@ -146,7 +146,7 @@ Redis connection URL
 {{- printf "redis://%s-redis-master:6379" .Release.Name -}}
 {{- end -}}
 {{- else -}}
-{{- .Values.frontend.env.REDIS_URL -}}
+{{- .Values.app.env.REDIS_URL -}}
 {{- end -}}
 {{- end }}
 
@@ -157,6 +157,6 @@ Verifier connection URL
 {{- if .Values.verifier.enabled -}}
 {{- printf "http://%s-verifier:%d" (include "l2scan-stack.fullname" .) (.Values.verifier.service.port | int) -}}
 {{- else -}}
-{{- .Values.frontend.env.VERIFICATION_URL -}}
+{{- .Values.app.env.VERIFICATION_URL -}}
 {{- end -}}
 {{- end }}

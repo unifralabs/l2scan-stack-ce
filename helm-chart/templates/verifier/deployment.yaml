@@ -34,7 +34,7 @@ spec:
         - name: verifier
           securityContext:
             {{- toYaml .Values.verifier.securityContext | nindent 12 }}
-          image: "{{ .Values.verifier.image.repository }}:{{ .Values.verifier.image.tag }}"
+          image: "{{ .Values.verifier.image.registry }}/{{ .Values.verifier.image.repository }}:{{ .Values.verifier.image.tag }}"
           imagePullPolicy: {{ .Values.verifier.image.pullPolicy }}
           ports:
             - name: http
