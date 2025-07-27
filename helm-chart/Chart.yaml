@@ -2,8 +2,8 @@ apiVersion: v2
 name: l2scan-stack-ce
 description: A Helm chart for deploying L2Scan app and indexer services
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.1.1
+appVersion: "0.1.1"
 keywords:
   - blockchain
   - explorer
