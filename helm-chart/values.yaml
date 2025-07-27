@@ -91,7 +91,7 @@ indexer:
   image:
     registry: ghcr.io
     repository: unifralabs/l2scan-indexer-ce
-    tag: "v0.0.3"
+    tag: "v0.0.4"
     pullPolicy: IfNotPresent
     pullSecrets: []
     

@@ -58,7 +58,7 @@ services:
 
   # L2Scan Indexer Service
   indexer:
-    image: ghcr.io/unifralabs/l2scan-indexer-ce:v0.0.3
+    image: ghcr.io/unifralabs/l2scan-indexer-ce:v0.0.4
     container_name: l2scan-indexer
     restart: unless-stopped
     environment:
