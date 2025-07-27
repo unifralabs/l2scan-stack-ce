@@ -77,41 +77,22 @@ jobs:
       - name: Upload chart to GitHub Releases
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          CR_OWNER: "${{ github.repository_owner }}"
-          CR_REPOSITORY: "${{ github.event.repository.name }}"
         run: |
-          cr upload -c $(git rev-parse HEAD)
+          cr upload \
+            --owner "${{ github.repository_owner }}" \
+            --git-repo "${{ github.event.repository.name }}" \
+            --token "${{ secrets.GITHUB_TOKEN }}" \
+            --commit $(git rev-parse HEAD)
 
       - name: Update Helm repository index
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          CR_OWNER: "${{ github.repository_owner }}"
-          CR_REPOSITORY: "${{ github.event.repository.name }}"
         run: |
-          cr index --push --pages-branch gh-pages
+          cr index \
+            --owner "${{ github.repository_owner }}" \
+            --git-repo "${{ github.event.repository.name }}" \
+            --token "${{ secrets.GITHUB_TOKEN }}" \
+            --pages-branch gh-pages \
+            --push
 
-  pages-deploy:
-    needs: release
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout gh-pages
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-          path: gh-pages
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: gh-pages
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4 
+ 
