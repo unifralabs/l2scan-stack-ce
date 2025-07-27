@@ -205,7 +205,7 @@ All services include health checks:
 
 ```bash
 # Check pod status
-kubectl get pods -l app.kubernetes.io/name=l2scan-stack
+kubectl get pods -l app.kubernetes.io/name=l2scan-stack-ce
 
 # Check service health
 kubectl exec deployment/l2scan-app -- wget -qO- http://localhost:3000/api/health

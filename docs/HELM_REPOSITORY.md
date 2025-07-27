@@ -48,7 +48,7 @@ helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
 helm pull oci://ghcr.io/unifralabs/l2scan-stack --version 0.1.0
 
 # Extract and view
-tar -xzf l2scan-stack-0.1.0.tgz
+tar -xzf l2scan-stack-ce-0.1.0.tgz
 cat l2scan-stack/Chart.yaml
 cat l2scan-stack/values.yaml
 ```

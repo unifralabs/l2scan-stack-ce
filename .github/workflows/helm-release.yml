@@ -85,13 +85,13 @@ jobs:
           helm package helm-chart
           
           # Push to GHCR
-          CHART_FILE=$(ls l2scan-stack-*.tgz)
+          CHART_FILE=$(ls l2scan-stack-ce-*.tgz)
           echo "Pushing $CHART_FILE to GHCR..."
           
-          helm push "$CHART_FILE" oci://ghcr.io/${{ github.repository_owner }}
+          helm push "$CHART_FILE" oci://ghcr.io/${{ github.repository_owner }}/helm
           
           echo "Chart pushed successfully!"
-          echo "Chart URL: oci://ghcr.io/${{ github.repository_owner }}/l2scan-stack"
+          echo "Chart URL: oci://ghcr.io/${{ github.repository_owner }}/helm/l2scan-stack-ce"
 
       - name: Create GitHub Release
         if: github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'
@@ -106,7 +106,7 @@ jobs:
             
             ```bash
             # Install directly from GitHub Container Registry
-            helm install my-l2scan oci://ghcr.io/${{ github.repository_owner }}/l2scan-stack \
+            helm install my-l2scan oci://ghcr.io/${{ github.repository_owner }}/helm/l2scan-stack-ce \
               --version ${{ steps.version.outputs.VERSION }} \
               --set app.env.RPC="your-rpc-url" \
               --set indexer.env.L2_RPC="your-rpc-url"
