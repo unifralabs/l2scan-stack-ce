@@ -49,21 +49,18 @@ open http://localhost:3000
 # - Redis: localhost:6379
 ```
 
-### Kubernetes with Helm Repository (Recommended)
+### Kubernetes with Helm (Recommended for production)
 
 ```bash
-# Add the L2Scan Helm repository
-helm repo add l2scan https://unifralabs.github.io/l2scan-stack-ce
-helm repo update
-
 # Create image pull secret (if using private images)
 kubectl create secret docker-registry ghcr-secret \
   --docker-server=ghcr.io \
   --docker-username=YOUR_USERNAME \
   --docker-password=YOUR_TOKEN
 
-# Deploy with external database
-helm install my-l2scan l2scan/l2scan-stack \
+# Install directly from GitHub Container Registry (OCI)
+helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
+  --version 1.0.0 \
   --set app.env.RPC="your-rpc-url" \
   --set app.env.DATABASE_URL="postgresql://user:pass@host:5432/dbname" \
   --set indexer.env.L2_RPC="your-rpc-url" \
@@ -71,7 +68,8 @@ helm install my-l2scan l2scan/l2scan-stack \
   --set global.imagePullSecrets[0].name=ghcr-secret
 
 # Or use example configurations
-helm install my-l2scan l2scan/l2scan-stack \
+helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
+  --version 1.0.0 \
   -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/production-values.yaml
 
 # Access the application
@@ -533,7 +531,7 @@ kubectl describe service l2scan-verifier
 ## 📚 Documentation
 
 - **[Complete Deployment Guide](docs/README.md)** - Detailed setup and configuration
-- **[Helm Repository Guide](docs/HELM_REPOSITORY.md)** - Official Helm repository usage
+- **[Helm OCI Registry Guide](docs/HELM_REPOSITORY.md)** - Install from GitHub Container Registry
 - **[Docker Compose Guide](docker-compose/README.md)** - Docker-specific instructions
 - **[Helm Chart Documentation](helm-chart/README.md)** - Local Kubernetes deployment details
 - **[Configuration Examples](helm-chart/examples/)** - Ready-to-use deployment configurations
