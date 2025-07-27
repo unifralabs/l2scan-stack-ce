@@ -60,7 +60,7 @@ kubectl create secret docker-registry ghcr-secret \
 
 # Install directly from GitHub Container Registry (OCI)
 helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
-  --version 1.0.0 \
+  --version 0.1.0 \
   --set app.env.RPC="your-rpc-url" \
   --set app.env.DATABASE_URL="postgresql://user:pass@host:5432/dbname" \
   --set indexer.env.L2_RPC="your-rpc-url" \
@@ -69,7 +69,7 @@ helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
 
 # Or use example configurations
 helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
-  --version 1.0.0 \
+  --version 0.1.0 \
   -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/production-values.yaml
 
 # Access the application

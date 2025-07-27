@@ -14,7 +14,7 @@
 ```bash
 # Basic installation with external database
 helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
-  --version 1.0.0 \
+  --version 0.1.0 \
   --set l2scan-postgresql.enabled=false \
   --set l2scan-redis.enabled=false \
   --set app.env.DATABASE_URL="postgresql://user:pass@host:5432/dbname" \
@@ -24,7 +24,7 @@ helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
 
 # Installation with included PostgreSQL and Redis
 helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
-  --version 1.0.0 \
+  --version 0.1.0 \
   --set l2scan-postgresql.enabled=true \
   --set l2scan-redis.enabled=true \
   --set app.env.RPC="your-rpc-endpoint" \
@@ -45,10 +45,10 @@ helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
 
 ```bash
 # Pull chart to local directory for inspection
-helm pull oci://ghcr.io/unifralabs/l2scan-stack --version 1.0.0
+helm pull oci://ghcr.io/unifralabs/l2scan-stack --version 0.1.0
 
 # Extract and view
-tar -xzf l2scan-stack-1.0.0.tgz
+tar -xzf l2scan-stack-0.1.0.tgz
 cat l2scan-stack/Chart.yaml
 cat l2scan-stack/values.yaml
 ```
@@ -60,21 +60,21 @@ cat l2scan-stack/values.yaml
 #### Development Setup
 ```bash
 helm install l2scan-dev oci://ghcr.io/unifralabs/l2scan-stack \
-  --version 1.0.0 \
+  --version 0.1.0 \
   -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/development-values.yaml
 ```
 
 #### Production Setup
 ```bash
 helm install l2scan-prod oci://ghcr.io/unifralabs/l2scan-stack \
-  --version 1.0.0 \
+  --version 0.1.0 \
   -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/production-values.yaml
 ```
 
 #### External Database Setup
 ```bash
 helm install l2scan-external oci://ghcr.io/unifralabs/l2scan-stack \
-  --version 1.0.0 \
+  --version 0.1.0 \
   -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/external-db-values.yaml \
   --set app.env.DATABASE_URL="your-database-url" \
   --set app.env.REDIS_URL="your-redis-url"
@@ -126,7 +126,7 @@ kubectl create secret docker-registry ghcr-secret \
 
 # Install with image pull secret
 helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
-  --version 1.0.0 \
+  --version 0.1.0 \
   --set global.imagePullSecrets[0].name=ghcr-secret \
   -f my-values.yaml
 ```
