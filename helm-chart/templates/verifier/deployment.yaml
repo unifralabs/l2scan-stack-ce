@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "l2scan-stack.fullname" . }}-verifier
+  labels:
+    {{- include "l2scan-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: verifier
+spec:
+  {{- if not .Values.verifier.autoscaling.enabled }}
+  replicas: {{ .Values.verifier.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "l2scan-stack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: verifier
+  template:
+    metadata:
+      {{- with .Values.verifier.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "l2scan-stack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: verifier
+    spec:
+      {{- with .Values.verifier.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "l2scan-stack.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.verifier.podSecurityContext | nindent 8 }}
+      containers:
+        - name: verifier
+          securityContext:
+            {{- toYaml .Values.verifier.securityContext | nindent 12 }}
+          image: "{{ .Values.verifier.image.repository }}:{{ .Values.verifier.image.tag }}"
+          imagePullPolicy: {{ .Values.verifier.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8050
+              protocol: TCP
+            - name: grpc
+              containerPort: 8051
+              protocol: TCP
+          env:
+            - name: SMART_CONTRACT_VERIFIER__CONFIG
+              value: "/app/config.toml"
+          {{- with .Values.verifier.env }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.verifier.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /app/config.toml
+              subPath: config.toml
+              readOnly: true
+            - name: compilers-storage
+              mountPath: /tmp/compilers
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "l2scan-stack.fullname" . }}-verifier-config
+        - name: compilers-storage
+          {{- if .Values.verifier.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "l2scan-stack.fullname" . }}-verifier-pvc
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.verifier.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.verifier.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.verifier.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }} 

@@ -31,7 +31,7 @@ L2Scan Stack includes:
 
 1. **Clone and Setup**
    ```bash
-   git clone <your-repo>
+   git clone https://github.com/unifralabs/l2scan-stack-ce
    cd l2scan-stack-ce/docker-compose
    cp .env.example .env
    ```
@@ -48,7 +48,7 @@ L2Scan Stack includes:
    # Backend (Indexer) Required Variables
    L1_RPC=http://10.2.0.13:8545
    L2_RPC=http://10.2.0.76:8545
-   PGDSN=postgres://postgres:mysecretpassword@10.100.1.6:5432/linea
+   PGDSN=postgresql://l2scan:l2scan123@postgres:5432/l2scan
    WORKER=1
    CMC_API_KEY=
    ```

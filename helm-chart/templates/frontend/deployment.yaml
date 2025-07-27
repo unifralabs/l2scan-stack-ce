@@ -62,8 +62,10 @@ spec:
               value: {{ include "l2scan-stack.postgresql.url" . | quote }}
             - name: REDIS_URL  
               value: {{ include "l2scan-stack.redis.url" . | quote }}
+            - name: VERIFICATION_URL
+              value: {{ include "l2scan-stack.verifier.url" . | quote }}
             {{- range $key, $value := .Values.frontend.env }}
-            {{- if and $value (ne $key "DATABASE_URL") (ne $key "REDIS_URL") }}
+            {{- if and $value (ne $key "DATABASE_URL") (ne $key "REDIS_URL") (ne $key "VERIFICATION_URL") }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}

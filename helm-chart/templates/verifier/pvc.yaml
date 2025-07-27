@@ -1,0 +1,24 @@
+{{- if .Values.verifier.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "l2scan-stack.fullname" . }}-verifier-pvc
+  labels:
+    {{- include "l2scan-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: verifier
+spec:
+  accessModes:
+    {{- range .Values.verifier.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.verifier.persistence.size | quote }}
+  {{- if .Values.verifier.persistence.storageClass }}
+  {{- if (eq "-" .Values.verifier.persistence.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.verifier.persistence.storageClass }}"
+  {{- end }}
+  {{- end }}
+{{- end }} 

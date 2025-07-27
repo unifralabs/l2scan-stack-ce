@@ -35,7 +35,7 @@ frontend:
     DATABASE_URL: ""  # Will be automatically generated if using internal PostgreSQL
     RPC: ""
     REDIS_URL: ""     # Will be automatically generated if using internal Redis
-    VERIFICATION_URL: ""
+    VERIFICATION_URL: ""  # Will be automatically generated if using internal verifier
     NODE_ENV: "production"
     
   envFrom: []
@@ -91,7 +91,7 @@ indexer:
   image:
     registry: ghcr.io
     repository: unifralabs/l2scan-indexer-ce
-    tag: "v0.0.4"
+    tag: "main"
     pullPolicy: IfNotPresent
     pullSecrets: []
     
@@ -142,6 +142,67 @@ indexer:
     runAsNonRoot: true
     runAsUser: 1001
     fsGroup: 1001
+
+# Smart Contract Verifier configuration
+verifier:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: blockscout/smart-contract-verifier
+    tag: "v1.10.0"
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    
+  replicaCount: 1
+  
+  config:
+    maxThreads: 8
+    
+  env: []
+  envFrom: []
+  
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+      
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  
+  service:
+    type: ClusterIP
+    port: 8050
+    grpcPort: 8051
+    annotations: {}
+    
+  persistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 50Gi
+    storageClass: ""
+    
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    fsGroup: 1001
+    
+  podSecurityContext:
+    runAsUser: 1001
+    fsGroup: 1001
+    
+  podAnnotations: {}
+  imagePullSecrets: []
+  
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
 
 # PostgreSQL configuration (using Bitnami chart)
 postgresql:

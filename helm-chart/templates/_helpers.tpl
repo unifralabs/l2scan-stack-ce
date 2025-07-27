@@ -149,3 +149,14 @@ Redis connection URL
 {{- .Values.frontend.env.REDIS_URL -}}
 {{- end -}}
 {{- end }}
+
+{{/*
+Verifier connection URL
+*/}}
+{{- define "l2scan-stack.verifier.url" -}}
+{{- if .Values.verifier.enabled -}}
+{{- printf "http://%s-verifier:%d" (include "l2scan-stack.fullname" .) (.Values.verifier.service.port | int) -}}
+{{- else -}}
+{{- .Values.frontend.env.VERIFICATION_URL -}}
+{{- end -}}
+{{- end }}

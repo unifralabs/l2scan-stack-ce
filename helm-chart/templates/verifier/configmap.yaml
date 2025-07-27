@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "l2scan-stack.fullname" . }}-verifier-config
+  labels:
+    {{- include "l2scan-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: verifier
+data:
+  config.toml: |
+    [server.http]
+    enabled = true
+    addr = "0.0.0.0:8050"
+    max_body_size = 2097152
+
+    [server.grpc]
+    enabled = false
+    addr = "0.0.0.0:8051"
+
+    [solidity]
+    enabled = true
+    compilers_dir = "/tmp/solidity-compilers"
+    refresh_versions_schedule = "0 0 * * * * *"
+
+    [solidity.fetcher.list]
+    list_url = "https://solc-bin.ethereum.org/linux-amd64/list.json"
+
+    [vyper]
+    enabled = true
+    compilers_dir = "/tmp/vyper-compilers"
+    refresh_versions_schedule = "0 0 * * * * *"
+
+    [vyper.fetcher.list]
+    list_url = "https://raw.githubusercontent.com/blockscout/solc-bin/main/vyper.list.json"
+
+    [sourcify]
+    enabled = true
+    api_url = "https://sourcify.dev/server/"
+    verification_attempts = 3
+    request_timeout = 15
+
+    [metrics]
+    enabled = false
+    addr = "0.0.0.0:6060"
+    route = "/metrics"
+
+    [jaeger]
+    enabled = false
+    agent_endpoint = "localhost:6831"
+
+    [compilers]
+    max_threads = {{ .Values.verifier.config.maxThreads }} 

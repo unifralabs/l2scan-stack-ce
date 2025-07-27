@@ -16,7 +16,7 @@ Thank you for your interest in contributing to L2Scan Stack! This document provi
 
 1. **Fork and Clone**
    ```bash
-   git clone https://github.com/your-username/l2scan-stack-ce.git
+   git clone https://github.com/unifralabs/l2scan-stack-ce.git
    cd l2scan-stack-ce
    ```
 
@@ -53,7 +53,7 @@ Thank you for your interest in contributing to L2Scan Stack! This document provi
 
 1. **Create a Branch**
    ```bash
-   git checkout -b feature/your-feature-name
+   git checkout -b feature/unifralabs
    # or
    git checkout -b fix/issue-description
    ```
@@ -84,7 +84,7 @@ Thank you for your interest in contributing to L2Scan Stack! This document provi
 
 5. **Push and Create PR**
    ```bash
-   git push origin your-branch-name
+   git push origin unifralabs
    ```
 
 ## 📋 Development Guidelines

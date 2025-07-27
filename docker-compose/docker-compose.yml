@@ -58,7 +58,7 @@ services:
 
   # L2Scan Indexer Service
   indexer:
-    image: ghcr.io/unifralabs/l2scan-indexer-ce:v0.0.4
+    image: ghcr.io/unifralabs/l2scan-indexer-ce:main
     container_name: l2scan-indexer
     restart: unless-stopped
     environment:
@@ -81,27 +81,38 @@ services:
         condition: service_healthy
       db-migrate:
         condition: service_completed_successfully
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     networks:
       - l2scan-network
 
-  # L2Scan Frontend Service
-  frontend:
+  # Smart Contract Verifier Service
+  verifier:
+    image: ghcr.io/blockscout/smart-contract-verifier:v1.10.0
+    container_name: l2scan-verifier
+    restart: unless-stopped
+    environment:
+      - SMART_CONTRACT_VERIFIER__CONFIG=/app/config.toml
+    volumes:
+      - ./smart-contract-verifier/config.toml:/app/config.toml
+      - verifier_compilers:/tmp/compilers
+    ports:
+      - "8050:8050"
+      - "8051:8051"
+    networks:
+      - l2scan-network
+
+  # L2Scan App Service
+  app:
     image: ghcr.io/unifralabs/l2scan-ce:main
-    container_name: l2scan-frontend
+    container_name: l2scan-app
     restart: unless-stopped
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql://l2scan:l2scan123@postgres:5432/l2scan}
       - REDIS_URL=${REDIS_URL:-redis://:redis123@redis:6379}
       - RPC=${RPC:-}
-      - VERIFICATION_URL=${VERIFICATION_URL:-}
+      - VERIFICATION_URL=${VERIFICATION_URL:-http://verifier:8050}
       - NODE_ENV=production
     volumes:
-      - frontend_data:/app/data
+      - app_data:/app/data
     ports:
       - "3000:3000"
     depends_on:
@@ -111,11 +122,8 @@ services:
         condition: service_healthy
       db-migrate:
         condition: service_completed_successfully
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      verifier:
+        condition: service_started
     networks:
       - l2scan-network
 
@@ -126,7 +134,9 @@ volumes:
     driver: local
   indexer_data:
     driver: local
-  frontend_data:
+  app_data:
+    driver: local
+  verifier_compilers:
     driver: local
 
 networks:
