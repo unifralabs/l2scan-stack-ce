@@ -1,6 +1,6 @@
 apiVersion: v2
 name: l2scan-stack-ce
-description: A Helm chart for deploying L2Scan app and indexer services
+description: A Helm chart for Kubernetes to deploy L2Scan Stack CE
 type: application
 version: 0.1.1
 appVersion: "0.1.1"

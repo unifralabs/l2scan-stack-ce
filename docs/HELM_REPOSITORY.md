@@ -2,10 +2,10 @@
 
 ## 📦 Repository Information
 
-- **OCI Registry**: `oci://ghcr.io/unifralabs/l2scan-stack`
-- **Chart Name**: `l2scan-stack`
+- **OCI Registry**: `oci://ghcr.io/unifralabs/helm/l2scan-stack-ce`
+- **Chart Name**: `l2scan-stack-ce`
 - **Source**: [GitHub Repository](https://github.com/unifralabs/l2scan-stack-ce)
-- **Packages**: [GitHub Packages](https://github.com/unifralabs/l2scan-stack-ce/pkgs/container/l2scan-stack)
+- **Packages**: [GitHub Packages](https://github.com/unifralabs/l2scan-stack-ce/pkgs/container/helm%2Fl2scan-stack-ce)
 
 ## 🚀 Quick Start
 
@@ -13,7 +13,7 @@
 
 ```bash
 # Basic installation with external database
-helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
+helm install my-l2scan oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 0.1.0 \
   --set l2scan-postgresql.enabled=false \
   --set l2scan-redis.enabled=false \
@@ -23,7 +23,7 @@ helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
   --set indexer.env.L2_RPC="your-rpc-endpoint"
 
 # Installation with included PostgreSQL and Redis
-helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
+helm install my-l2scan oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 0.1.0 \
   --set l2scan-postgresql.enabled=true \
   --set l2scan-redis.enabled=true \
@@ -45,7 +45,7 @@ helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
 
 ```bash
 # Pull chart to local directory for inspection
-helm pull oci://ghcr.io/unifralabs/l2scan-stack --version 0.1.0
+helm pull oci://ghcr.io/unifralabs/helm/l2scan-stack-ce --version 0.1.0
 
 # Extract and view
 tar -xzf l2scan-stack-ce-0.1.0.tgz
@@ -59,21 +59,21 @@ cat l2scan-stack/values.yaml
 
 #### Development Setup
 ```bash
-helm install l2scan-dev oci://ghcr.io/unifralabs/l2scan-stack \
+helm install l2scan-dev oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 0.1.0 \
   -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/development-values.yaml
 ```
 
 #### Production Setup
 ```bash
-helm install l2scan-prod oci://ghcr.io/unifralabs/l2scan-stack \
+helm install l2scan-prod oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 0.1.0 \
   -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/production-values.yaml
 ```
 
 #### External Database Setup
 ```bash
-helm install l2scan-external oci://ghcr.io/unifralabs/l2scan-stack \
+helm install l2scan-external oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 0.1.0 \
   -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/external-db-values.yaml \
   --set app.env.DATABASE_URL="your-database-url" \
@@ -125,7 +125,7 @@ kubectl create secret docker-registry ghcr-secret \
   --docker-password=YOUR_TOKEN
 
 # Install with image pull secret
-helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
+helm install my-l2scan oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 0.1.0 \
   --set global.imagePullSecrets[0].name=ghcr-secret \
   -f my-values.yaml
@@ -145,11 +145,11 @@ helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
 
 ```bash
 # Upgrade to a new version
-helm upgrade my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
+helm upgrade my-l2scan oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 1.1.0
 
 # Upgrade with new values
-helm upgrade my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
+helm upgrade my-l2scan oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 1.1.0 \
   -f my-values.yaml
 ```

@@ -59,7 +59,7 @@ kubectl create secret docker-registry ghcr-secret \
   --docker-password=YOUR_TOKEN
 
 # Install directly from GitHub Container Registry (OCI)
-helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
+helm install my-l2scan oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 0.1.0 \
   --set app.env.RPC="your-rpc-url" \
   --set app.env.DATABASE_URL="postgresql://user:pass@host:5432/dbname" \
@@ -68,7 +68,7 @@ helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
   --set global.imagePullSecrets[0].name=ghcr-secret
 
 # Or use example configurations
-helm install my-l2scan oci://ghcr.io/unifralabs/l2scan-stack \
+helm install my-l2scan oci://ghcr.io/unifralabs/helm/l2scan-stack-ce \
   --version 0.1.0 \
   -f https://raw.githubusercontent.com/unifralabs/l2scan-stack-ce/main/helm-chart/examples/production-values.yaml
 
@@ -579,16 +579,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: Check the `docs/` directory for detailed guides
 - **Issues**: Report bugs and request features via GitHub Issues
 - **Discussions**: Join community discussions in GitHub Discussions
-
-## 🔄 Roadmap
-
-- [ ] Multi-chain support
-- [ ] Enhanced smart contract verification (more languages)
-- [ ] Advanced monitoring and alerting
-- [ ] Automated scaling policies
-- [ ] Enhanced security features
-- [ ] CI/CD pipeline templates
-- [ ] Cloud provider specific deployments (AWS, GCP, Azure)
 
 ---
 

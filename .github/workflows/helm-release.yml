@@ -2,8 +2,8 @@ name: Release Helm Chart
 
 on:
   push:
-    branches:
-      - main
+    # branches:
+    #   - main
     tags:
       - 'v*'
   workflow_dispatch:
