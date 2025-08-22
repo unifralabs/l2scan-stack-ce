@@ -86,6 +86,10 @@ kubectl get svc
 # Navigate to helm chart
 cd l2scan-stack-ce/helm-chart
 
+# Add required helm repositories
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+
 # Install dependencies
 helm dependency build
 
@@ -95,17 +99,19 @@ kubectl create secret docker-registry ghcr-secret \
   --docker-username=YOUR_USERNAME \
   --docker-password=YOUR_TOKEN
 
-# Deploy with custom values
+# Deploy with development configuration (recommended for first-time users)
+helm install l2scan . -f examples/development-values.yaml \
+  --set global.imagePullSecrets[0].name=ghcr-secret
+
+# OR deploy with custom values
 helm install l2scan . \
   --set app.env.RPC="your-rpc-url" \
   --set indexer.env.L2_RPC="your-rpc-url" \
   --set verifier.enabled=true \
-  --set postgresql.enabled=true \
-  --set redis.enabled=true \
   --set global.imagePullSecrets[0].name=ghcr-secret
 
 # Access the application
-kubectl port-forward svc/l2scan-app 3000:3000
+kubectl port-forward svc/l2scan-l2scan-stack-ce-app 3000:3000
 
 # Verify deployment
 kubectl get pods
@@ -168,7 +174,7 @@ For Helm deployments, customize `values.yaml`:
 
 ```yaml
 app:
-  replicaCount: 3
+  replicaCount: 1
   resources:
     limits:
       cpu: 1000m
@@ -182,7 +188,7 @@ app:
             pathType: Prefix
 
 indexer:
-  replicaCount: 2
+  replicaCount: 1
   env:
     L2_RPC: "https://your-l2-rpc-endpoint"
     WORKER: "2"
@@ -196,6 +202,25 @@ verifier:
     size: 50Gi
   config:
     maxThreads: 8
+```
+
+## 💾 Data Persistence and Redeployment
+
+### Data Persistence
+By default, L2Scan preserves data across deployments:
+- **PostgreSQL data** is stored in persistent volumes and will survive pod restarts and chart upgrades
+- **Redis data** is also persisted and maintained
+- **Indexed blockchain data** is preserved in PostgreSQL and indexing will resume from the last processed block
+
+### Safe Redeployment
+```bash
+# To redeploy while keeping data (recommended)
+helm upgrade l2scan . -f examples/development-values.yaml
+
+# To completely reset and start fresh (DANGER: loses all data)
+helm uninstall l2scan
+kubectl delete pvc --all  # This permanently deletes all data
+helm install l2scan . -f examples/development-values.yaml
 ```
 
 ## 🛠️ Management Commands
@@ -482,7 +507,7 @@ postgresql:
 | **Memory issues** | OOM kills, slow performance | Increase resource limits |
 | **Verification errors** | Contract verification fails | Check verifier logs and compiler availability |
 | **ImagePullBackOff (K8s)** | Kubernetes can't pull images | Create ImagePullSecret for private registries |
-| **Helm dependency errors** | Missing PostgreSQL/Redis charts | Run `helm dependency build` before install |
+| **Helm dependency errors** | Missing PostgreSQL/Redis charts | Add bitnami repo: `helm repo add bitnami https://charts.bitnami.com/bitnami` then `helm dependency build` |
 
 ### Debug Commands
 

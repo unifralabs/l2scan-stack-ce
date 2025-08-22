@@ -127,9 +127,7 @@ docker-compose up -d --scale frontend=3 --scale indexer=2
 #### Kubernetes Scaling
 ```yaml
 frontend:
-  replicaCount: 3
-indexer:
-  replicaCount: 2
+  replicaCount: 1
 ```
 
 ## Operations

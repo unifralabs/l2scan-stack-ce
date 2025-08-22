@@ -29,7 +29,7 @@ app:
         cpu: 50m
         memory: 128Mi
   
-  replicaCount: 1
+  replicaCount: 1  # App supports multiple replicas, but single replica is recommended for most deployments
   
   env:
     DATABASE_URL: ""  # Will be automatically generated if using internal PostgreSQL
@@ -70,7 +70,7 @@ app:
     tls: []
     
   healthCheck:
-    enabled: true
+    enabled: false  # Disabled by default as app doesn't expose /api/health endpoint
     path: /api/health
     initialDelaySeconds: 30
     periodSeconds: 10
@@ -81,8 +81,8 @@ app:
     size: 10Gi
     
   securityContext:
-    runAsNonRoot: true
-    runAsUser: 1001
+    runAsNonRoot: false  # Allow root access for Prisma client generation in init container
+    runAsUser: 0
     fsGroup: 1001
 
 # L2Scan Indexer configuration  
@@ -95,7 +95,7 @@ indexer:
     pullPolicy: IfNotPresent
     pullSecrets: []
     
-  replicaCount: 1
+  replicaCount: 1  # IMPORTANT: Indexer does NOT support multiple replicas - must be 1
   
   env:
     # L1_RPC: ""
@@ -128,7 +128,7 @@ indexer:
     annotations: {}
     
   healthCheck:
-    enabled: true
+    enabled: false  # Disabled by default as indexer doesn't expose /health endpoint
     path: /health
     initialDelaySeconds: 60
     periodSeconds: 30
@@ -243,6 +243,8 @@ l2scan-redis:
       requests:
         cpu: 100m
         memory: 256Mi
+  replica:
+    replicaCount: 0  # Single Redis instance is sufficient for most deployments
   metrics:
     enabled: false
 

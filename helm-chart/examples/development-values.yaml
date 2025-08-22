@@ -6,7 +6,7 @@ app:
   replicaCount: 1
   
   env:
-    RPC: "https://eth-sepolia.alchemyapi.io/v2/demo"
+    RPC: "https://rpc.devnet.doge.xyz"  # Use stable DOGE devnet RPC endpoint
     NODE_ENV: "development"
     
   resources:
@@ -25,7 +25,7 @@ indexer:
   replicaCount: 1
   
   env:
-    L2_RPC: "https://eth-sepolia.alchemyapi.io/v2/demo"
+    L2_RPC: "https://rpc.devnet.doge.xyz"  # Use stable DOGE devnet RPC endpoint
     WORKER: "1"
     
   resources:
@@ -88,6 +88,8 @@ redis:
       limits:
         cpu: 200m
         memory: 512Mi
+  replica:
+    replicaCount: 0  # Single Redis instance for simplicity
 
 # Minimal security for development
 global:

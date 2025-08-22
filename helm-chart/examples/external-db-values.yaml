@@ -3,7 +3,7 @@
 
 app:
   enabled: true
-  replicaCount: 2
+  replicaCount: 1
   
   env:
     RPC: "https://your-l2-rpc-endpoint"
@@ -22,7 +22,7 @@ app:
 
 indexer:
   enabled: true
-  replicaCount: 2
+  replicaCount: 1  # IMPORTANT: Indexer does NOT support multiple replicas - must be 1
   
   env:
     L2_RPC: "https://your-l2-rpc-endpoint"

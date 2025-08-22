@@ -87,7 +87,7 @@ app:
 
 ```yaml
 app:
-  replicaCount: 3
+  replicaCount: 1
   resources:
     requests:
       cpu: 500m
@@ -97,7 +97,7 @@ app:
       memory: 2Gi
 
 indexer:
-  replicaCount: 2
+  replicaCount: 1
   resources:
     requests:
       cpu: 1000m

@@ -3,7 +3,7 @@
 
 app:
   enabled: true
-  replicaCount: 2
+  replicaCount: 1
   
   image:
     registry: ghcr.io
@@ -38,7 +38,7 @@ app:
 
 indexer:
   enabled: true
-  replicaCount: 2
+  replicaCount: 1  # IMPORTANT: Indexer does NOT support multiple replicas - must be 1
   
   env:
     L2_RPC: "https://your-l2-rpc-endpoint"
@@ -108,6 +108,8 @@ redis:
       limits:
         cpu: 1000m
         memory: 2Gi
+  replica:
+    replicaCount: 0  # Single Redis instance is sufficient for most deployments
 
 # Security and networking
 global:

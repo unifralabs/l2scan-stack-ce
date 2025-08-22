@@ -105,8 +105,6 @@ app:
 ```yaml
 app:
   replicaCount: 3
-indexer:
-  replicaCount: 2
 verifier:
   replicaCount: 1
 ```
