@@ -6,7 +6,7 @@ app:
   replicaCount: 1
   
   env:
-    RPC: "https://rpc.devnet.doge.xyz"  # Use stable DOGE devnet RPC endpoint
+    CHAIN_RPC_URL: "https://your-l2-rpc-endpoint"  # Replace with your L2 RPC endpoint
     NODE_ENV: "development"
     
   resources:
@@ -25,7 +25,7 @@ indexer:
   replicaCount: 1
   
   env:
-    L2_RPC: "https://rpc.devnet.doge.xyz"  # Use stable DOGE devnet RPC endpoint
+    L2_RPC: "https://your-l2-rpc-endpoint"  # Replace with your L2 RPC endpoint
     WORKER: "1"
     
   resources:

@@ -10,7 +10,7 @@ app:
   image:
     registry: ghcr.io
     repository: unifralabs/l2scan-ce
-    tag: "main"
+    tag: "v0.0.9"
     pullPolicy: IfNotPresent
     pullSecrets: []
   
@@ -18,7 +18,7 @@ app:
   initContainer:
     enabled: true
     image: ghcr.io/unifralabs/l2scan-ce-init
-    tag: main
+    tag: v0.0.9
     pullPolicy: IfNotPresent
     nodeEnv: production
     resources:
@@ -33,10 +33,22 @@ app:
   
   env:
     DATABASE_URL: ""  # Will be automatically generated if using internal PostgreSQL
-    RPC: ""
+    CHAIN_RPC_URL: ""
     REDIS_URL: ""     # Will be automatically generated if using internal Redis
     VERIFICATION_URL: ""  # Will be automatically generated if using internal verifier
     NODE_ENV: "production"
+    # Optional branding configuration
+    BRAND_NAME: "L2Scan"
+    BRAND_TITLE: "L2Scan Blockchain Explorer"
+    BRAND_DESCRIPTION: "A powerful and user-friendly blockchain explorer for Layer 2 networks."
+    BRAND_LOGO: ""
+    BRAND_LOGO_DARK: ""
+    # Optional chain configuration
+    CHAIN_ID: ""
+    CHAIN_BLOCK_EXPLORER_URL: ""
+    CHAIN_CURRENCY_NAME: "Ether"
+    CHAIN_CURRENCY_SYMBOL: "ETH"
+    CHAIN_CURRENCY_DECIMALS: "18"
     
   envFrom: []
   

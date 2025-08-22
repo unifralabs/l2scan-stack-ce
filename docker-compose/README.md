@@ -26,7 +26,7 @@ This directory contains Docker Compose configuration for deploying L2Scan stack 
 
 ## Database Initialization
 
-The stack includes automatic database initialization using a dedicated init container (`ghcr.io/unifralabs/l2scan-ce-init:main`). This ensures the database schema is properly set up before the main services start.
+The stack includes automatic database initialization using a dedicated init container (`ghcr.io/unifralabs/l2scan-ce-init:v0.0.9`). This ensures the database schema is properly set up before the main services start.
 
 ### Manual Database Operations
 
@@ -66,9 +66,23 @@ Edit `.env` file with your configuration:
 DATABASE_URL=postgresql://l2scan:l2scan123@postgres:5432/l2scan
 
 # Frontend Required Variables
-RPC=http://10.2.0.76:8545
+CHAIN_RPC_URL=http://10.2.0.76:8545
 REDIS_URL=redis://:redis123@redis:6379
 VERIFICATION_URL=https://your-verification-service.com
+
+# Optional Frontend Branding (will use defaults if not set)
+BRAND_NAME=L2Scan
+BRAND_TITLE=L2Scan Blockchain Explorer
+BRAND_DESCRIPTION=A powerful and user-friendly blockchain explorer for Layer 2 networks.
+# BRAND_LOGO=/path/to/your/logo.svg
+# BRAND_LOGO_DARK=/path/to/your/dark-logo.svg
+
+# Optional Chain Configuration (will use defaults if not set)
+CHAIN_ID=534352
+CHAIN_BLOCK_EXPLORER_URL=https://your-explorer-url
+CHAIN_CURRENCY_NAME=Ether
+CHAIN_CURRENCY_SYMBOL=ETH
+CHAIN_CURRENCY_DECIMALS=18
 
 # Backend (Indexer) Required Variables
 #L1_RPC=http://10.2.0.13:8545
@@ -161,9 +175,9 @@ docker network inspect l2scan-stack-ce_l2scan-network
 
 ## Images Used
 
-- **Frontend**: `ghcr.io/unifralabs/l2scan-ce:main` - Main Next.js application
-- **Database Init**: `ghcr.io/unifralabs/l2scan-ce-init:main` - Lightweight init container for database setup
-- **Indexer**: `l2scan/indexer:latest` - Backend indexing service
+- **Frontend**: `ghcr.io/unifralabs/l2scan-ce:v0.0.9` - Main Next.js application
+- **Database Init**: `ghcr.io/unifralabs/l2scan-ce-init:v0.0.9` - Lightweight init container for database setup
+- **Indexer**: `ghcr.io/unifralabs/l2scan-indexer-ce:main` - Backend indexing service
 - **PostgreSQL**: `postgres:15-alpine` - Database
 - **Redis**: `redis:7-alpine` - Cache and session store
 
@@ -299,8 +313,8 @@ jobs:
 ### Custom Images
 
 The stack uses pre-built images from GitHub Container Registry:
-- `ghcr.io/unifralabs/l2scan-ce:main` - Main application
+- `ghcr.io/unifralabs/l2scan-ce:v0.0.9` - Main application
 - `ghcr.io/unifralabs/l2scan-indexer-ce:main` - Blockchain indexer  
-- `ghcr.io/unifralabs/l2scan-ce-init:main` - Database initialization
+- `ghcr.io/unifralabs/l2scan-ce-init:v0.0.9` - Database initialization
 
 These images are automatically pulled when running `make up`.

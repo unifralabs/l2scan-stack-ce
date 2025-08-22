@@ -44,7 +44,7 @@ services:
 
   # Database Migration Service (Init Container pattern)
   db-migrate:
-    image: ghcr.io/unifralabs/l2scan-ce-init:main
+    image: ghcr.io/unifralabs/l2scan-ce-init:v0.0.9
     container_name: l2scan-db-migrate
     restart: "no"  # Run only once
     environment:
@@ -102,15 +102,27 @@ services:
 
   # L2Scan App Service
   app:
-    image: ghcr.io/unifralabs/l2scan-ce:main
+    image: ghcr.io/unifralabs/l2scan-ce:v0.0.9
     container_name: l2scan-app
     restart: unless-stopped
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql://l2scan:l2scan123@postgres:5432/l2scan}
       - REDIS_URL=${REDIS_URL:-redis://:redis123@redis:6379}
-      - RPC=${RPC:-}
+      - CHAIN_RPC_URL=${CHAIN_RPC_URL:-}
       - VERIFICATION_URL=${VERIFICATION_URL:-http://verifier:8050}
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV:-production}
+      # Optional branding configuration
+      - BRAND_NAME=${BRAND_NAME:-}
+      - BRAND_TITLE=${BRAND_TITLE:-}
+      - BRAND_DESCRIPTION=${BRAND_DESCRIPTION:-}
+      - BRAND_LOGO=${BRAND_LOGO:-}
+      - BRAND_LOGO_DARK=${BRAND_LOGO_DARK:-}
+      # Optional chain configuration
+      - CHAIN_ID=${CHAIN_ID:-}
+      - CHAIN_BLOCK_EXPLORER_URL=${CHAIN_BLOCK_EXPLORER_URL:-}
+      - CHAIN_CURRENCY_NAME=${CHAIN_CURRENCY_NAME:-}
+      - CHAIN_CURRENCY_SYMBOL=${CHAIN_CURRENCY_SYMBOL:-}
+      - CHAIN_CURRENCY_DECIMALS=${CHAIN_CURRENCY_DECIMALS:-}
     volumes:
       - app_data:/app/data
     ports:

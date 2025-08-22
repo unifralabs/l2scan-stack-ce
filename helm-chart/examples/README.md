@@ -18,7 +18,7 @@ This directory contains example configuration files for different deployment sce
 **Deployment**:
 ```bash
 helm install l2scan . -f examples/production-values.yaml \
-  --set app.env.RPC="https://your-l2-rpc-endpoint" \
+  --set app.env.CHAIN_RPC_URL="https://your-l2-rpc-endpoint" \
   --set indexer.env.L2_RPC="https://your-l2-rpc-endpoint" \
   --set indexer.env.CMC_API_KEY="your-api-key" \
   --set postgresql.auth.postgresPassword="your-secure-password" \
@@ -54,7 +54,7 @@ helm install l2scan-dev . -f examples/development-values.yaml
 **Deployment**:
 ```bash
 helm install l2scan . -f examples/external-db-values.yaml \
-  --set app.env.RPC="https://your-l2-rpc-endpoint" \
+  --set app.env.CHAIN_RPC_URL="https://your-l2-rpc-endpoint" \
   --set app.env.DATABASE_URL="postgresql://user:pass@host:5432/db" \
   --set app.env.REDIS_URL="redis://:pass@host:6379" \
   --set indexer.env.L2_RPC="https://your-l2-rpc-endpoint" \
@@ -78,7 +78,7 @@ helm install l2scan . -f my-values.yaml
 ```yaml
 app:
   env:
-    RPC: "https://your-l2-rpc-endpoint"
+    CHAIN_RPC_URL: "https://your-l2-rpc-endpoint"
 indexer:
   env:
     L2_RPC: "https://your-l2-rpc-endpoint"

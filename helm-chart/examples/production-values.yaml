@@ -5,14 +5,10 @@ app:
   enabled: true
   replicaCount: 1
   
-  image:
-    registry: ghcr.io
-    repository: unifralabs/l2scan-ce
-    tag: "main"
-    pullPolicy: IfNotPresent
+  # Using default image configuration from values.yaml
     
   env:
-    RPC: "https://your-l2-rpc-endpoint"
+    CHAIN_RPC_URL: "https://your-l2-rpc-endpoint"
     NODE_ENV: "production"
     
   resources:

@@ -27,7 +27,7 @@ helm install l2scan . -f my-values.yaml
 
 # With inline values
 helm install l2scan . \
-  --set app.env.RPC="https://mainnet.infura.io/v3/YOUR_KEY" \
+  --set app.env.CHAIN_RPC_URL="https://mainnet.infura.io/v3/YOUR_KEY" \
   --set app.ingress.enabled=true
 ```
 
