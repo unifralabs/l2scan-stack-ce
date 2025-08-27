@@ -26,7 +26,7 @@ This directory contains Docker Compose configuration for deploying L2Scan stack 
 
 ## Database Initialization
 
-The stack includes automatic database initialization using a dedicated init container (`ghcr.io/unifralabs/l2scan-ce-init:v0.0.9`). This ensures the database schema is properly set up before the main services start.
+The stack includes automatic database initialization using a dedicated init container (`ghcr.io/unifralabs/l2scan-ce-init:v0.0.10`). This ensures the database schema is properly set up before the main services start.
 
 ### Manual Database Operations
 
@@ -175,8 +175,8 @@ docker network inspect l2scan-stack-ce_l2scan-network
 
 ## Images Used
 
-- **Frontend**: `ghcr.io/unifralabs/l2scan-ce:v0.0.9` - Main Next.js application
-- **Database Init**: `ghcr.io/unifralabs/l2scan-ce-init:v0.0.9` - Lightweight init container for database setup
+- **Frontend**: `ghcr.io/unifralabs/l2scan-ce:v0.0.10` - Main Next.js application
+- **Database Init**: `ghcr.io/unifralabs/l2scan-ce-init:v0.0.10` - Lightweight init container for database setup
 - **Indexer**: `ghcr.io/unifralabs/l2scan-indexer-ce:main` - Backend indexing service
 - **PostgreSQL**: `postgres:15-alpine` - Database
 - **Redis**: `redis:7-alpine` - Cache and session store
@@ -313,8 +313,8 @@ jobs:
 ### Custom Images
 
 The stack uses pre-built images from GitHub Container Registry:
-- `ghcr.io/unifralabs/l2scan-ce:v0.0.9` - Main application
+- `ghcr.io/unifralabs/l2scan-ce:v0.0.10` - Main application
 - `ghcr.io/unifralabs/l2scan-indexer-ce:main` - Blockchain indexer  
-- `ghcr.io/unifralabs/l2scan-ce-init:v0.0.9` - Database initialization
+- `ghcr.io/unifralabs/l2scan-ce-init:v0.0.10` - Database initialization
 
 These images are automatically pulled when running `make up`.

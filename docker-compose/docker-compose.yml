@@ -44,7 +44,7 @@ services:
 
   # Database Migration Service (Init Container pattern)
   db-migrate:
-    image: ghcr.io/unifralabs/l2scan-ce-init:v0.0.9
+    image: ghcr.io/unifralabs/l2scan-ce-init:v0.0.10
     container_name: l2scan-db-migrate
     restart: "no"  # Run only once
     environment:
@@ -102,7 +102,7 @@ services:
 
   # L2Scan App Service
   app:
-    image: ghcr.io/unifralabs/l2scan-ce:v0.0.9
+    image: ghcr.io/unifralabs/l2scan-ce:v0.0.10
     container_name: l2scan-app
     restart: unless-stopped
     environment:

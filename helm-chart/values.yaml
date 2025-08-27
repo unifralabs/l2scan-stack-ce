@@ -10,7 +10,7 @@ app:
   image:
     registry: ghcr.io
     repository: unifralabs/l2scan-ce
-    tag: "v0.0.9"
+    tag: "v0.0.10"
     pullPolicy: IfNotPresent
     pullSecrets: []
   
@@ -18,7 +18,7 @@ app:
   initContainer:
     enabled: true
     image: ghcr.io/unifralabs/l2scan-ce-init
-    tag: v0.0.9
+    tag: v0.0.10
     pullPolicy: IfNotPresent
     nodeEnv: production
     resources:
