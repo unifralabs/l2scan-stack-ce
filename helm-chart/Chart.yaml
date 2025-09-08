@@ -2,7 +2,7 @@ apiVersion: v2
 name: l2scan-stack-ce
 description: A Helm chart for Kubernetes to deploy L2Scan Stack CE
 type: application
-version: 0.1.3
+version: 0.1.4
 appVersion: "0.0.10"
 keywords:
   - blockchain
